@@ -399,21 +399,80 @@ h1 {
 
 .screen-welcome {
   display: grid;
+  width: min(620px, calc(100% - 32px));
+  min-height: min(380px, calc(100% - 32px));
+  place-items: center;
   gap: 18px;
-  max-width: min(520px, calc(100% - 32px));
-  padding: 24px;
+  border: 3px solid var(--cyan);
+  background:
+    linear-gradient(135deg, rgba(33, 244, 255, 0.1), rgba(255, 43, 214, 0.1)),
+    repeating-linear-gradient(0deg, rgba(184, 255, 22, 0.08) 0 2px, transparent 2px 8px),
+    rgba(5, 5, 10, 0.82);
+  box-shadow: 0 0 0 5px var(--ink), 0 0 28px rgba(33, 244, 255, 0.38), inset 0 0 44px rgba(184, 255, 22, 0.08);
+  padding: clamp(18px, 4vw, 34px);
   text-align: center;
-  animation: none;
 }
 
-.screen-welcome small {
+.screen-welcome img {
+  width: clamp(72px, 14vw, 118px);
+  height: clamp(72px, 14vw, 118px);
+  border: 3px solid var(--lime);
+  background: var(--ink);
+  box-shadow: 5px 5px 0 var(--magenta), 0 0 22px rgba(184, 255, 22, 0.38);
+  image-rendering: pixelated;
+}
+
+.welcome-copy {
+  display: grid;
+  gap: 12px;
+  max-width: 520px;
+}
+
+.welcome-copy span,
+.welcome-copy strong,
+.welcome-prompt span {
+  font-family: var(--font-pixel), monospace;
+  text-transform: uppercase;
+}
+
+.welcome-copy span {
+  color: var(--yellow);
+  font-size: clamp(0.75rem, 2vw, 1.2rem);
+  line-height: 1.35;
+  text-shadow: 3px 3px 0 rgba(255, 43, 214, 0.86);
+}
+
+.welcome-copy strong {
+  color: var(--lime);
+  font-size: clamp(0.58rem, 1.45vw, 0.82rem);
+  line-height: 1.45;
+}
+
+.welcome-copy small {
   display: block;
   color: var(--cyan);
-  font-family: var(--font-arcade-text), monospace;
   font-size: clamp(1.35rem, 3vw, 2rem);
   line-height: 0.95;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(255, 43, 214, 0.7);
+}
+
+.welcome-prompt {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(100%, 430px);
+  gap: 10px;
+}
+
+.welcome-prompt span {
+  display: grid;
+  min-height: 40px;
+  place-items: center;
+  border: 2px solid var(--lime);
+  background: var(--ink);
+  color: var(--lime);
+  font-size: 0.5rem;
+  box-shadow: 3px 3px 0 var(--magenta);
 }
 
 .ruffle-player {
@@ -1178,6 +1237,10 @@ h1 {
   }
 
   .footer-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-prompt {
     grid-template-columns: 1fr;
   }
 

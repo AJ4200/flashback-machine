@@ -39,10 +39,6 @@ export function useRufflePlayer({ effectiveVolume, mountRef, reloadToken, select
 
   useEffect(() => {
     if (!selectedGame) {
-      if (mountRef.current) {
-        mountRef.current.innerHTML = "";
-      }
-
       playerRef.current = null;
       setPlayerStatus("waiting for game");
       return;

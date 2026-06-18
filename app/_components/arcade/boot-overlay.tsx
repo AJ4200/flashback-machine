@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { BOOT_LINES } from "../../_lib/constants";
 
 type BootOverlayProps = {
@@ -17,10 +16,8 @@ export function BootOverlay({ bootProgress, bootReady, bootStarted, onStart }: B
           <p>RETRO NET BOOT DISK</p>
         </div>
         <div className="boot-lines">
-          {BOOT_LINES.slice(0, Math.max(1, Math.ceil((bootProgress / 100) * BOOT_LINES.length))).map((line, index) => (
-            <span key={line} style={{ "--line-index": index } as CSSProperties}>
-              {line}
-            </span>
+          {BOOT_LINES.slice(0, Math.max(1, Math.ceil((bootProgress / 100) * BOOT_LINES.length))).map((line) => (
+            <span key={line}>{line}</span>
           ))}
         </div>
         <div className="boot-meter">

@@ -27,7 +27,7 @@ export function LoveBadge() {
           </section>
           <section>
             <strong>saves</strong>
-            <p>Game progress uses browser storage. RetroNet save slots snapshot the current Flash save data for the selected game and restore it before reload.</p>
+            <p>Game progress uses browser storage when a SWF supports it. RetroNet slots copy that Flash save data, not the live emulator RAM state.</p>
           </section>
         </div>
       </details>

@@ -40,21 +40,19 @@ export function Cabinet({ gameCount, mountRef, onFullscreen, onReload, selectedG
         </div>
       </div>
 
-      <div className="control-deck">
-        <button className="arcade-button hot" onClick={onFullscreen} type="button">
-          full screen
-        </button>
-        <button className="arcade-button" disabled={!selectedGame} onClick={onReload} type="button">
-          reload
-        </button>
-        {selectedGame ? (
+      {selectedGame ? (
+        <div className="control-deck">
+          <button className="arcade-button hot" onClick={onFullscreen} type="button">
+            full screen
+          </button>
+          <button className="arcade-button" onClick={onReload} type="button">
+            reload
+          </button>
           <a className="arcade-button cyan" download={selectedGame.file} href={selectedGame.path}>
             download swf
           </a>
-        ) : (
-          <span className="arcade-button is-disabled">download swf</span>
-        )}
-      </div>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -41,7 +41,7 @@ export function MemoryPanel({
   volume,
 }: MemoryPanelProps) {
   return (
-    <aside className="memory-panel" aria-label="Save states">
+    <aside className="memory-panel" aria-label="Save data">
       <div className="panel-header">
         <span>memory card</span>
         <strong>{notice}</strong>

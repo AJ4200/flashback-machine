@@ -11,7 +11,7 @@ Made with love by aj4200.
 - Searchable game cabinet generated from `public/games/flashlist.json`
 - Fullscreen cabinet mode
 - Download button for the selected `.swf`
-- Three manual save slots per game using browser storage snapshots
+- Three manual save-data slots per game for Flash games that write browser save data
 - Automatic Ruffle SharedObject persistence through browser storage
 - Installable PWA with manifest icons and service worker
 - Offline app shell, local Ruffle runtime, and on-demand game caching
@@ -97,7 +97,9 @@ For the most reliable install/offline test, run the production build over HTTPS 
 
 ## Saves
 
-Ruffle persists Flash SharedObject data in browser storage. RetroNet adds three visible save slots per game by snapshotting and restoring non-RetroNet local storage entries, then reloading the current game.
+Ruffle persists Flash SharedObject data in browser storage. RetroNet adds three visible save-data slots per game by copying and restoring that browser save data, then reloading the current game.
+
+These are not true emulator save states. Ruffle's web player does not currently expose a full runtime/RAM snapshot API, so RetroNet cannot reliably resume an arbitrary exact frame unless the game itself has written save data.
 
 Browser storage is local to the origin. Changing domains, clearing site data, or using a private window can remove saves and offline cache data.
 

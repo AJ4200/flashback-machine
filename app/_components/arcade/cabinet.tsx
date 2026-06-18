@@ -21,8 +21,8 @@ export function Cabinet({ gameCount, mountRef, onFullscreen, onReload, selectedG
         <div className="screen" ref={mountRef}>
           {!selectedGame ? (
             <div className="screen-standby screen-welcome">
-              <span>{gameCount > 0 ? `${gameCount} games online` : "scanning library"}</span>
-              <small>choose a cabinet from the wall</small>
+              <span>no game loaded</span>
+              <small>{gameCount > 0 ? `${gameCount} games online - choose a cabinet from the wall` : "scanning library"}</small>
             </div>
           ) : (
             <div className="screen-standby">

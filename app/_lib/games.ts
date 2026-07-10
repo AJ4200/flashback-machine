@@ -1,3 +1,7 @@
+export const FLASH_CATALOG_PATH = "/games/flash/flashlist.json";
+
+export const flashGamePath = (file: string) => `/games/flash/${encodeURIComponent(file)}`;
+
 export const slugFor = (value: string) =>
   value
     .replace(/\.swf$/i, "")

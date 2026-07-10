@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { FLAVORS } from "../_lib/constants";
-import { formatBytes, titleFor } from "../_lib/games";
+import { FLASH_CATALOG_PATH, flashGamePath, formatBytes, titleFor } from "../_lib/games";
 import type { Game } from "../_lib/types";
 
 type UseGameCatalogOptions = {
@@ -29,17 +29,17 @@ export function useGameCatalog({ onCatalogError }: UseGameCatalogOptions) {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/games/flashlist.json")
+    fetch(FLASH_CATALOG_PATH)
       .then((response) => response.json())
       .then((files: string[]) =>
         Promise.all(
           files.map(async (file, index) => {
-            const head = await fetch(`/games/${encodeURIComponent(file)}`, { method: "HEAD" }).catch(() => null);
+            const head = await fetch(flashGamePath(file), { method: "HEAD" }).catch(() => null);
 
             return {
               file,
               title: titleFor(file),
-              path: `/games/${encodeURIComponent(file)}`,
+              path: flashGamePath(file),
               flavor: FLAVORS[index % FLAVORS.length],
               size: formatBytes(Number(head?.headers.get("content-length"))),
             };

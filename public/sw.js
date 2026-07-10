@@ -9,7 +9,7 @@ const SHELL_ASSETS = [
   "/icons/flashback-machine-192.png",
   "/icons/flashback-machine-512.png",
   "/icons/flashback-machine-maskable-512.png",
-  "/games/flashlist.json",
+  "/games/flash/flashlist.json",
   "/ruffle/ruffle.js",
   "/ruffle/core.ruffle.8700c6b0144208de9d1b.js",
   "/ruffle/core.ruffle.99037c3e46986c91597b.js",

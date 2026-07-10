@@ -6,9 +6,9 @@ Made with love by aj4200.
 
 ## Features
 
-- Ruffle-powered SWF playback from `public/games`
+- Ruffle-powered SWF playback from `public/games/flash`
 - Pixel arcade UI with boot splash, fake loader, CRT scanlines, neon colors, and transitions
-- Searchable game cabinet generated from `public/games/flashlist.json`
+- Searchable game cabinet generated from `public/games/flash/flashlist.json`
 - Fullscreen cabinet mode
 - Download button for the selected `.swf`
 - Three manual save-data slots per game for Flash games that write browser save data
@@ -53,16 +53,16 @@ pnpm start
 
 ## Adding Games
 
-Put `.swf` files in:
+Put Flash `.swf` files in:
 
 ```text
-public/games
+public/games/flash/
 ```
 
-Then add each file name to:
+and add each filename to:
 
 ```text
-public/games/flashlist.json
+public/games/flash/flashlist.json
 ```
 
 Example:
@@ -91,7 +91,7 @@ Games are cached in two ways:
 
 - Selecting or playing a game lets the service worker cache that SWF as it is fetched.
 - Press `cache game` to store the selected game for offline play.
-- Press `cache all` to store every game in `flashlist.json`. This can take time and use a lot of browser storage because the library contains large SWF files.
+- Press `cache all` to store every game in `flash/flashlist.json`. This can take time and use a lot of browser storage because the library contains large SWF files.
 
 For the most reliable install/offline test, run the production build over HTTPS or use a browser that allows service workers on `localhost`.
 
@@ -115,7 +115,7 @@ Browser storage is local to the origin. Changing domains, clearing site data, or
 - `app/icon.tsx` - generated app icon
 - `app/apple-icon.tsx` - generated Apple touch icon
 - `public/sw.js` - service worker
-- `public/games/flashlist.json` - game catalog
+- `public/games/flash/flashlist.json` - Flash game catalog
 - `public/ruffle` - local Ruffle runtime
 
 ## Notes

@@ -38,9 +38,9 @@ export function useRufflePlayer({ effectiveVolume, mountRef, reloadToken, select
   }, []);
 
   useEffect(() => {
-    if (!selectedGame) {
+    if (!selectedGame || selectedGame.mode !== "flash") {
       playerRef.current = null;
-      setPlayerStatus("waiting for game");
+      setPlayerStatus(selectedGame?.mode === "jsdos" ? "waiting for game" : "waiting for game");
       return;
     }
 

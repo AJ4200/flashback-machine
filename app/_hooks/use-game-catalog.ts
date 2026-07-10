@@ -2,14 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { FLAVORS } from "../_lib/constants";
-import { FLASH_CATALOG_PATH, flashGamePath, formatBytes, titleFor } from "../_lib/games";
-import type { Game } from "../_lib/types";
+import { formatBytes, gameAssetPath, gameCatalogPath, titleFor } from "../_lib/games";
+import type { Game, GameMode } from "../_lib/types";
 
 type UseGameCatalogOptions = {
+  mode: GameMode;
   onCatalogError: () => void;
 };
 
-export function useGameCatalog({ onCatalogError }: UseGameCatalogOptions) {
+export function useGameCatalog({ mode, onCatalogError }: UseGameCatalogOptions) {
   const [games, setGames] = useState<Game[]>([]);
   const [selectedFile, setSelectedFile] = useState("");
   const [query, setQuery] = useState("");
@@ -27,20 +28,26 @@ export function useGameCatalog({ onCatalogError }: UseGameCatalogOptions) {
   }, [games, query]);
 
   useEffect(() => {
+    setSelectedFile("");
+    setQuery("");
+  }, [mode]);
+
+  useEffect(() => {
     let cancelled = false;
 
-    fetch(FLASH_CATALOG_PATH)
+    fetch(gameCatalogPath(mode))
       .then((response) => response.json())
       .then((files: string[]) =>
         Promise.all(
           files.map(async (file, index) => {
-            const head = await fetch(flashGamePath(file), { method: "HEAD" }).catch(() => null);
+            const head = await fetch(gameAssetPath(mode, file), { method: "HEAD" }).catch(() => null);
 
             return {
               file,
-              title: titleFor(file),
-              path: flashGamePath(file),
+              title: titleFor(file, mode),
+              path: gameAssetPath(mode, file),
               flavor: FLAVORS[index % FLAVORS.length],
+              mode,
               size: formatBytes(Number(head?.headers.get("content-length"))),
             };
           }),
@@ -60,7 +67,7 @@ export function useGameCatalog({ onCatalogError }: UseGameCatalogOptions) {
     return () => {
       cancelled = true;
     };
-  }, [onCatalogError]);
+  }, [mode, onCatalogError]);
 
   const selectGame = (file: string) => {
     setSelectedFile(file);

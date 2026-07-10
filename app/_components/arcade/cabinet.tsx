@@ -1,8 +1,9 @@
 import type { RefObject } from "react";
-import type { Game } from "../../_lib/types";
+import type { Game, GameMode } from "../../_lib/types";
 
 type CabinetProps = {
   gameCount: number;
+  mode: GameMode;
   mountRef: RefObject<HTMLDivElement | null>;
   onFullscreen: () => void;
   onReload: () => void;
@@ -10,7 +11,7 @@ type CabinetProps = {
   stageRef: RefObject<HTMLDivElement | null>;
 };
 
-export function Cabinet({ gameCount, mountRef, onFullscreen, onReload, selectedGame, stageRef }: CabinetProps) {
+export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, selectedGame, stageRef }: CabinetProps) {
   return (
     <section className="cabinet">
       <div className="screen-bezel" ref={stageRef}>
@@ -18,7 +19,7 @@ export function Cabinet({ gameCount, mountRef, onFullscreen, onReload, selectedG
           <span>{selectedGame?.title ?? "choose your game"}</span>
           <span>{selectedGame?.size ?? `${gameCount.toString().padStart(2, "0")} games`}</span>
         </div>
-        <div className="screen" ref={mountRef}>
+        <div className={`screen ${mode === "jsdos" ? "screen-dos" : "screen-flash"}`} ref={mountRef}>
           {!selectedGame ? (
             <div className="screen-welcome">
               <img src="/icons/flashback-machine-192.png" alt="" width="92" height="92" />
@@ -29,12 +30,12 @@ export function Cabinet({ gameCount, mountRef, onFullscreen, onReload, selectedG
               </div>
               <div className="welcome-prompt">
                 <span>ready</span>
-                <span>select game</span>
+                <span>{mode === "flash" ? "select game" : "boot dos title"}</span>
               </div>
             </div>
           ) : (
             <div className="screen-standby">
-              <span>INSERT CARTRIDGE</span>
+              <span>{mode === "flash" ? "INSERT CARTRIDGE" : "LOAD DOS BUNDLE"}</span>
             </div>
           )}
         </div>
@@ -49,7 +50,7 @@ export function Cabinet({ gameCount, mountRef, onFullscreen, onReload, selectedG
             reload
           </button>
           <a className="arcade-button cyan" download={selectedGame.file} href={selectedGame.path}>
-            download swf
+            {mode === "flash" ? "download swf" : "download bundle"}
           </a>
         </div>
       ) : null}

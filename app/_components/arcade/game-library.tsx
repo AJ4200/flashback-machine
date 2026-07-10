@@ -1,17 +1,18 @@
-import type { Game } from "../../_lib/types";
+import type { Game, GameMode } from "../../_lib/types";
 
 type GameLibraryProps = {
   filteredGames: Game[];
   gameCount: number;
+  mode: GameMode;
   query: string;
   selectedGame?: Game;
   selectGame: (file: string) => void;
   setQuery: (query: string) => void;
 };
 
-export function GameLibrary({ filteredGames, gameCount, query, selectedGame, selectGame, setQuery }: GameLibraryProps) {
+export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery }: GameLibraryProps) {
   return (
-    <aside className="library-panel" aria-label="Flash game library">
+    <aside className="library-panel" aria-label={`${mode === "flash" ? "Flash" : "JS DOS"} game library`}>
       <div className="panel-header">
         <span>cabinet wall</span>
         <strong>{gameCount.toString().padStart(2, "0")}</strong>
@@ -19,7 +20,7 @@ export function GameLibrary({ filteredGames, gameCount, query, selectedGame, sel
 
       <label className="search-box">
         <span>find</span>
-        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="game title" type="search" />
+        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={mode === "flash" ? "game title" : "dos title"} type="search" />
       </label>
 
       <div className="game-list">

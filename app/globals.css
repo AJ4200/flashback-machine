@@ -483,6 +483,20 @@ h1 {
     #010105;
 }
 
+.screen-flash {
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 43, 214, 0.08) 0 2px, transparent 2px 6px),
+    radial-gradient(circle at 50% 50%, rgba(255, 43, 214, 0.16), transparent 56%),
+    #140213;
+}
+
+.screen-dos {
+  background:
+    repeating-linear-gradient(0deg, rgba(33, 244, 255, 0.08) 0 2px, transparent 2px 6px),
+    radial-gradient(circle at 50% 50%, rgba(184, 255, 22, 0.16), transparent 56%),
+    #001319;
+}
+
 .screen::after {
   position: absolute;
   inset: 0;
@@ -756,6 +770,13 @@ h1 {
 
 .boot-box button.is-ready {
   animation: start-pulse 900ms steps(2) infinite;
+}
+
+.mode-toggle-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .save-slots {

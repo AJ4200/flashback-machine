@@ -14,8 +14,8 @@ type UseSaveSlotsOptions = {
 export function useSaveSlots({ onReload, selectedGame, setNotice }: UseSaveSlotsOptions) {
   const [saveSlots, setSaveSlots] = useState<SaveSlot[]>([]);
 
-  const refreshSlots = useCallback((file: string) => {
-    setSaveSlots(readSaveSlots(file));
+  const refreshSlots = useCallback((mode: Game["mode"], file: string) => {
+    setSaveSlots(readSaveSlots(mode, file));
   }, []);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export function useSaveSlots({ onReload, selectedGame, setNotice }: UseSaveSlots
     }
 
     window.localStorage.setItem(LAST_GAME_KEY, selectedGame.file);
-    refreshSlots(selectedGame.file);
+    refreshSlots(selectedGame.mode, selectedGame.file);
   }, [refreshSlots, selectedGame]);
 
   const saveSlot = (slot: number) => {
@@ -35,14 +35,14 @@ export function useSaveSlots({ onReload, selectedGame, setNotice }: UseSaveSlots
     const storage = snapshotLocalStorage();
 
     window.localStorage.setItem(
-      saveKey(selectedGame.file, slot),
+      saveKey(selectedGame.mode, selectedGame.file, slot),
       JSON.stringify({
         game: selectedGame.file,
         createdAt: new Date().toISOString(),
         storage,
       }),
     );
-    refreshSlots(selectedGame.file);
+    refreshSlots(selectedGame.mode, selectedGame.file);
     setNotice(`slot ${slot} saved`);
   };
 
@@ -51,7 +51,7 @@ export function useSaveSlots({ onReload, selectedGame, setNotice }: UseSaveSlots
       return;
     }
 
-    const raw = window.localStorage.getItem(saveKey(selectedGame.file, slot));
+    const raw = window.localStorage.getItem(saveKey(selectedGame.mode, selectedGame.file, slot));
 
     if (!raw) {
       setNotice(`slot ${slot} is empty`);
@@ -76,8 +76,8 @@ export function useSaveSlots({ onReload, selectedGame, setNotice }: UseSaveSlots
       return;
     }
 
-    window.localStorage.removeItem(saveKey(selectedGame.file, slot));
-    refreshSlots(selectedGame.file);
+    window.localStorage.removeItem(saveKey(selectedGame.mode, selectedGame.file, slot));
+    refreshSlots(selectedGame.mode, selectedGame.file);
     setNotice(`slot ${slot} cleared`);
   };
 

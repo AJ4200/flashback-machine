@@ -1,15 +1,15 @@
 import { SAVE_PREFIX, STORAGE_PREFIX } from "./constants";
-import type { SaveSlot } from "./types";
+import type { GameMode, SaveSlot } from "./types";
 
-export const saveKey = (file: string, slot: number) => `${SAVE_PREFIX}${encodeURIComponent(file)}:${slot}`;
+export const saveKey = (mode: GameMode, file: string, slot: number) => `${SAVE_PREFIX}${mode}:${encodeURIComponent(file)}:${slot}`;
 
-export const readSaveSlots = (file: string): SaveSlot[] => {
+export const readSaveSlots = (mode: GameMode, file: string): SaveSlot[] => {
   if (typeof window === "undefined") {
     return [];
   }
 
   return [1, 2, 3].map((id) => {
-    const raw = window.localStorage.getItem(saveKey(file, id));
+    const raw = window.localStorage.getItem(saveKey(mode, file, id));
 
     if (!raw) {
       return { id, createdAt: null, count: 0 };

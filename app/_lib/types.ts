@@ -1,8 +1,11 @@
+export type GameMode = "flash" | "jsdos";
+
 export type Game = {
   file: string;
   title: string;
   path: string;
   flavor: string;
+  mode: GameMode;
   size?: string;
 };
 
@@ -28,6 +31,7 @@ export type BeforeInstallPromptEvent = Event & {
 
 declare global {
   interface Window {
+    Dos?: (root: HTMLElement, options?: Record<string, unknown>) => unknown;
     RufflePlayer?: {
       config?: Record<string, unknown>;
       newest: () => {

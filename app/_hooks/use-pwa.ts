@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PWA_GAME_CACHE, PWA_RUNTIME_CACHE } from "../_lib/constants";
-import { FLASH_CATALOG_PATH, flashGamePath } from "../_lib/games";
-import type { BeforeInstallPromptEvent, Game } from "../_lib/types";
+import { gameAssetPath, gameCatalogPath } from "../_lib/games";
+import type { BeforeInstallPromptEvent, Game, GameMode } from "../_lib/types";
 
-export function usePwa(games: Game[], selectedGame?: Game) {
+export function usePwa(games: Game[], selectedGame?: Game, mode: GameMode = "flash") {
   const [pwaStatus, setPwaStatus] = useState("offline core standby");
   const [canInstall, setCanInstall] = useState(false);
   const [cacheBusy, setCacheBusy] = useState(false);
@@ -38,7 +38,7 @@ export function usePwa(games: Game[], selectedGame?: Game) {
           .map((entry) => entry.name)
           .filter((url) => url.startsWith(window.location.origin))
           .map((url) => new URL(url).pathname);
-        const urls = Array.from(new Set(["/", "/manifest.webmanifest", FLASH_CATALOG_PATH, "/ruffle/ruffle.js", ...resources]));
+        const urls = Array.from(new Set(["/", "/manifest.webmanifest", gameCatalogPath(mode), "/ruffle/ruffle.js", ...resources]));
 
         if ("caches" in window) {
           const cache = await caches.open(PWA_RUNTIME_CACHE);
@@ -100,12 +100,12 @@ export function usePwa(games: Game[], selectedGame?: Game) {
 
     try {
       const cache = await caches.open(PWA_GAME_CACHE);
-      const response = await fetch(FLASH_CATALOG_PATH);
+      const response = await fetch(gameCatalogPath(mode));
       const files = (await response.json()) as string[];
 
       for (let index = 0; index < files.length; index += 1) {
         setPwaStatus(`caching ${index + 1}/${files.length}`);
-        await cache.add(flashGamePath(files[index])).catch(() => undefined);
+        await cache.add(gameAssetPath(mode, files[index])).catch(() => undefined);
       }
 
       setPwaStatus("library offline");

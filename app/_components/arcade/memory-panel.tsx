@@ -1,5 +1,5 @@
 import { slugFor } from "../../_lib/games";
-import type { Game, SaveSlot } from "../../_lib/types";
+import type { Game, GameMode, SaveSlot } from "../../_lib/types";
 
 type MemoryPanelProps = {
   cacheBusy: boolean;
@@ -10,6 +10,7 @@ type MemoryPanelProps = {
   gameCount: number;
   installPwa: () => void;
   loadSlot: (slot: number) => void;
+  mode: GameMode;
   muted: boolean;
   notice: string;
   onToggleMuted: () => void;
@@ -18,6 +19,7 @@ type MemoryPanelProps = {
   saveSlot: (slot: number) => void;
   saveSlots: SaveSlot[];
   selectedGame?: Game;
+  switchMode: (mode: GameMode) => void;
   volume: number;
 };
 
@@ -30,6 +32,7 @@ export function MemoryPanel({
   gameCount,
   installPwa,
   loadSlot,
+  mode,
   muted,
   notice,
   onToggleMuted,
@@ -38,6 +41,7 @@ export function MemoryPanel({
   saveSlot,
   saveSlots,
   selectedGame,
+  switchMode,
   volume,
 }: MemoryPanelProps) {
   return (
@@ -45,6 +49,15 @@ export function MemoryPanel({
       <div className="panel-header">
         <span>memory card</span>
         <strong>{notice}</strong>
+      </div>
+
+      <div className="mode-toggle-row">
+        <button className={mode === "flash" ? "arcade-button hot" : "arcade-button"} onClick={() => switchMode("flash")} type="button">
+          flash
+        </button>
+        <button className={mode === "jsdos" ? "arcade-button cyan" : "arcade-button"} onClick={() => switchMode("jsdos")} type="button">
+          js dos
+        </button>
       </div>
 
       <div className="save-slots">

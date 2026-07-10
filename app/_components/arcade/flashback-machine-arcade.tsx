@@ -5,10 +5,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useAudioControls } from "../../_hooks/use-audio-controls";
 import { useBootSequence } from "../../_hooks/use-boot-sequence";
 import { useGameCatalog } from "../../_hooks/use-game-catalog";
+import { useJsDosPlayer } from "../../_hooks/use-js-dos-player";
 import { usePwa } from "../../_hooks/use-pwa";
 import { useRufflePlayer } from "../../_hooks/use-ruffle-player";
 import { useSaveSlots } from "../../_hooks/use-save-slots";
 import { OFFLINE_PROMPT_DISMISSED_KEY } from "../../_lib/constants";
+import type { GameMode } from "../../_lib/types";
 import { BootOverlay } from "./boot-overlay";
 import { Cabinet } from "./cabinet";
 import { GameLibrary } from "./game-library";
@@ -21,6 +23,7 @@ export function FlashBackMachineArcade() {
   const [notice, setNotice] = useState("memory card ready");
   const [offlinePromptDismissed, setOfflinePromptDismissed] = useState(true);
   const [reloadToken, setReloadToken] = useState(0);
+  const [mode, setMode] = useState<GameMode>("flash");
   const stageRef = useRef<HTMLDivElement>(null);
   const mountRef = useRef<HTMLDivElement>(null);
 
@@ -32,17 +35,23 @@ export function FlashBackMachineArcade() {
     setNotice("game catalog missing");
   }, []);
 
-  const { filteredGames, games, query, selectedGame, selectGame, setQuery } = useGameCatalog({ onCatalogError });
+  const { filteredGames, games, query, selectedGame, selectGame, setQuery } = useGameCatalog({ mode, onCatalogError });
   const { bootProgress, bootReady, bootStarted, startBoot } = useBootSequence();
   const { effectiveVolume, muted, setVolume, toggleMuted, volume } = useAudioControls();
-  const { playerStatus, ruffleReady, setPlayerStatus, setRuffleReady } = useRufflePlayer({
+  const { playerStatus: flashPlayerStatus, ruffleReady, setPlayerStatus: setFlashPlayerStatus, setRuffleReady } = useRufflePlayer({
     effectiveVolume,
     mountRef,
     reloadToken,
     selectedGame,
     setNotice,
   });
-  const { cacheBusy, cacheLibrary, cacheSelectedGame, canInstall, installPwa, pwaStatus } = usePwa(games, selectedGame);
+  const { dosReady, playerStatus: dosPlayerStatus, setPlayerStatus: setDosPlayerStatus } = useJsDosPlayer({
+    mountRef,
+    reloadToken,
+    selectedGame,
+    setNotice,
+  });
+  const { cacheBusy, cacheLibrary, cacheSelectedGame, canInstall, installPwa, pwaStatus } = usePwa(games, selectedGame, mode);
   const { clearSlot, loadSlot, saveSlot, saveSlots } = useSaveSlots({
     onReload: reloadGame,
     selectedGame,
@@ -56,6 +65,11 @@ export function FlashBackMachineArcade() {
   const selectGameAndReload = (file: string) => {
     selectGame(file);
     reloadGame();
+  };
+
+  const switchMode = (nextMode: GameMode) => {
+    setMode(nextMode);
+    setNotice(`${nextMode === "flash" ? "flash" : "dos"} deck armed`);
   };
 
   const enterFullscreen = () => {
@@ -75,19 +89,24 @@ export function FlashBackMachineArcade() {
         onLoad={() => setRuffleReady(true)}
         onError={() => {
           setRuffleReady(false);
-          setPlayerStatus("ruffle network error");
+          setFlashPlayerStatus("ruffle network error");
           setNotice("ruffle runtime could not load");
         }}
       />
 
       <main className="arcade-shell">
         <div className="crt-noise" aria-hidden="true" />
-        <Marquee playerStatus={playerStatus} ruffleReady={ruffleReady} />
+        <Marquee
+          mode={mode}
+          playerStatus={mode === "flash" ? flashPlayerStatus : dosPlayerStatus}
+          ruffleReady={mode === "flash" ? ruffleReady : dosReady}
+        />
 
         <section className="arcade-grid">
           <GameLibrary
             filteredGames={filteredGames}
             gameCount={games.length}
+            mode={mode}
             query={query}
             selectedGame={selectedGame}
             selectGame={selectGameAndReload}
@@ -95,6 +114,7 @@ export function FlashBackMachineArcade() {
           />
           <Cabinet
             gameCount={games.length}
+            mode={mode}
             mountRef={mountRef}
             onFullscreen={enterFullscreen}
             onReload={reloadGame}
@@ -110,6 +130,7 @@ export function FlashBackMachineArcade() {
             gameCount={games.length}
             installPwa={installPwa}
             loadSlot={loadSlot}
+            mode={mode}
             muted={muted}
             notice={notice}
             onToggleMuted={toggleMuted}
@@ -118,6 +139,7 @@ export function FlashBackMachineArcade() {
             saveSlot={saveSlot}
             saveSlots={saveSlots}
             selectedGame={selectedGame}
+            switchMode={switchMode}
             volume={volume}
           />
         </section>

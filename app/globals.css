@@ -490,6 +490,162 @@ h1 {
   place-items: center;
 }
 
+.screen-content :is(img, svg, button, input, select, textarea, [role="button"]):not(canvas) {
+  max-width: 28px !important;
+  max-height: 28px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 4px 6px !important;
+  margin: 0 !important;
+  border-width: 0 !important;
+  font-size: 0.65rem !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
+}
+
+.screen-content img,
+.screen-content svg,
+.screen-content [class*="icon"] > img,
+.screen-content [class*="icon"] > svg {
+  width: auto !important;
+  height: auto !important;
+}
+
+.screen-content button,
+.screen-content .fe_fileexplorer_navtools button,
+.screen-content .fe_fileexplorer_folder_tools button,
+.screen-content .fe_fileexplorer_path_segment_wrap {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 4px 6px !important;
+}
+
+.screen-content .fe_fileexplorer_folder_tools button::before,
+.screen-content .fe_fileexplorer_navtools button::before {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.fe_fileexplorer_wrap,
+.fe_fileexplorer_navtools button,
+.fe_fileexplorer_folder_tools button,
+.fe_fileexplorer_item_icon,
+.fe_fileexplorer_item_icon_img,
+.fe_fileexplorer_path_icon,
+.fe_fileexplorer_path_icon_inner,
+.fe_fileexplorer_path_segment_wrap,
+.fe_fileexplorer_folder_tools button::before,
+.fe_fileexplorer_navtools button::before {
+  max-width: 30px !important;
+  max-height: 30px !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 2px 4px !important;
+  margin: 0 !important;
+  font-size: 0.8rem !important;
+  box-sizing: border-box !important;
+}
+
+/* js-dos runtime overlay fixes */
+.jsdos-rso {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.jsdos-rso .window,
+.jsdos-rso .frame-root,
+.jsdos-rso .frame,
+.jsdos-rso .settings-frame,
+.jsdos-rso .prerun-frame,
+.jsdos-rso .network-frame,
+.jsdos-rso .editor-fs-frame,
+.jsdos-rso .soft-keyboard,
+.jsdos-rso .mouseOverlay,
+.jsdos-rso .emulator-control-select,
+.jsdos-rso .emulator-button-control,
+.jsdos-rso .emulator-button-highlight,
+.jsdos-rso .emulator-loader,
+.jsdos-rso .cursor-pointer,
+.jsdos-rso .modal,
+.jsdos-rso .dialog,
+.jsdos-rso .alert {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  font-size: 0.8rem !important;
+  line-height: 1 !important;
+  padding: 4px !important;
+  margin: 0 !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.jsdos-rso .emulator-root,
+.jsdos-rso .emulator-canvas,
+.jsdos-rso .emulator-video {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  position: absolute !important;
+  inset: 0 !important;
+}
+
+.jsdos-rso .emulator-root {
+  overflow: hidden !important;
+}
+
+.jsdos-rso .emulator-loading,
+.jsdos-rso .emulator-loading-inner,
+.jsdos-rso .editor-fs-frame,
+.jsdos-rso .frame-root,
+.jsdos-rso .frame,
+.jsdos-rso .host {
+  position: absolute !important;
+}
+
+.jsdos-rso .frame-root,
+.jsdos-rso .frame {
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.jsdos-rso .modal,
+.jsdos-rso .dialog,
+.jsdos-rso .alert,
+.jsdos-rso .soft-keyboard,
+.jsdos-rso .mouseOverlay {
+  display: none !important;
+}
+
+.jsdos-rso .editor-fs-frame {
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.jsdos-rso .emulator-canvas {
+  object-fit: contain !important;
+}
+
+.fe_fileexplorer_folder_tools button::before,
+.fe_fileexplorer_navtools button::before {
+  width: 18px !important;
+  height: 18px !important;
+}
+
 .screen-flash {
   background:
     repeating-linear-gradient(0deg, rgba(255, 43, 214, 0.08) 0 2px, transparent 2px 6px),

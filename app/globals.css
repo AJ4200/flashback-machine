@@ -273,6 +273,15 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+.mode-tag {
+  margin: 0.6rem 0 0;
+  color: var(--magenta);
+  font-family: var(--font-pixel), monospace;
+  font-size: clamp(0.65rem, 1.1vw, 0.85rem);
+  letter-spacing: 0.15rem;
+  text-transform: uppercase;
+}
+
 .marquee-status span {
   color: var(--yellow);
   font-family: var(--font-pixel), monospace;

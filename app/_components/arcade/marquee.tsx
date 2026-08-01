@@ -7,8 +7,15 @@ type MarqueeProps = {
 };
 
 export function Marquee({ mode, playerStatus, ruffleReady }: MarqueeProps) {
-  const engineName = mode === "flash" ? "FlashBack" : mode === "jsdos" ? "DOSBack" : `${mode.toUpperCase()}Back`;
-  const engineLabel = mode === "flash" ? "CLASSIC FLASH ARCADE" : `${mode.toUpperCase()} CABINET EXPANSION`;
+  const engineLabel = "FLASHBACK ENGINE";
+  const modeTag =
+    mode === "jsdos"
+      ? "JSDOS MODE UNDER DEVELOPMENT"
+      : mode === "nes"
+      ? "NES MODE UNDER DEVELOPMENT"
+      : mode === "mame"
+      ? "MAME MODE UNDER DEVELOPMENT"
+      : undefined;
   const runtimeStatus = mode === "flash" ? (ruffleReady ? "RUFFLE ONLINE" : "RUFFLE BOOTING") : mode === "jsdos" ? "JS DOS ONLINE" : `${mode.toUpperCase()} ENGINE SLOT`;
 
   return (
@@ -17,7 +24,8 @@ export function Marquee({ mode, playerStatus, ruffleReady }: MarqueeProps) {
         <img className="brand-logo" src="/icons/flashback-machine-192.png" alt="FlashBack Machine arcade logo" width="96" height="96" />
         <div>
           <p className="eyebrow">{engineLabel}</p>
-            <h1>{engineName} Machine</h1>
+          <h1>FlashBack Machine</h1>
+          {modeTag ? <p className="mode-tag">{modeTag}</p> : null}
         </div>
       </div>
       <div className="marquee-status">

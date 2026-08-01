@@ -37,7 +37,7 @@ export function FlashBackMachineArcade() {
     setNotice("game catalog missing");
   }, []);
 
-  const { filteredGames, games, loading, totalFiles, supportedCount, query, selectedGame, selectGame, setQuery } = useGameCatalog({ mode, onCatalogError });
+  const { filteredGames, games, loading, totalFiles, supportedCount, unsupportedFiles, mapperExcludedFiles, query, selectedGame, selectGame, setQuery } = useGameCatalog({ mode, onCatalogError });
   const { bootProgress, bootReady, bootStarted, startBoot } = useBootSequence();
   const { effectiveVolume, muted, setVolume, toggleMuted, volume } = useAudioControls();
   const { playerStatus: flashPlayerStatus, ruffleReady, setPlayerStatus: setFlashPlayerStatus, setRuffleReady } = useRufflePlayer({
@@ -144,6 +144,8 @@ export function FlashBackMachineArcade() {
             isLoading={loading}
             totalFiles={totalFiles}
             supportedCount={supportedCount}
+            unsupportedFiles={unsupportedFiles}
+            mapperExcludedFiles={mapperExcludedFiles}
           />
           <Cabinet
             gameCount={games.length}

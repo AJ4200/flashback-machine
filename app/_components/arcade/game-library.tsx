@@ -11,9 +11,11 @@ type GameLibraryProps = {
   isLoading: boolean;
   totalFiles?: number;
   supportedCount?: number;
+  unsupportedFiles?: string[];
+  mapperExcludedFiles?: string[];
 };
 
-export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery, isLoading, totalFiles, supportedCount }: GameLibraryProps) {
+export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery, isLoading, totalFiles, supportedCount, unsupportedFiles, mapperExcludedFiles }: GameLibraryProps) {
   const libraryName = mode === "flash" ? "Flash" : mode === "jsdos" ? "JS DOS" : mode.toUpperCase();
   const searchPlaceholder = mode === "flash" ? "game title" : `${mode} title`;
 
@@ -46,6 +48,8 @@ export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGam
                 "The catalog contains files, but none are supported (.zip, .7z, .chd). Check mamelist.json or file extensions."
               ) : mode === "mame" ? (
                 "Add .zip, .7z or .chd ROMs to public/games/mame and list them in mamelist.json"
+              ) : mode === "nes" && mapperExcludedFiles && mapperExcludedFiles.length > 0 ? (
+                `Some ${mapperExcludedFiles.length} NES ROM${mapperExcludedFiles.length === 1 ? " was" : "s were"} excluded due to unsupported mapper(s). Use plain iNES .nes ROMs.`
               ) : mode === "nes" ? (
                 "Add plain .nes ROMs to public/games/nes and list them in neslist.json"
               ) : (

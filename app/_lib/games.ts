@@ -60,3 +60,10 @@ export const formatBytes = (bytes: number) => {
 
   return bytes > 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 };
+
+// List of mapper numbers implemented by jsnes (from node_modules/jsnes/src/mappers)
+export const SUPPORTED_NES_MAPPERS = [
+  0, 1, 2, 3, 4, 5, 7, 9, 11, 34, 38, 66, 71, 79, 94, 118, 119, 140, 180, 240, 241,
+];
+
+export const isNesMapperSupported = (mapper: number) => SUPPORTED_NES_MAPPERS.includes(mapper);

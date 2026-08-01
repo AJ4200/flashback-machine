@@ -23,6 +23,54 @@ type MemoryPanelProps = {
   volume: number;
 };
 
+const MODE_BUTTONS = {
+  flash: {
+    label: "flash",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M7 2L17 2L11 12L17 12L7 22L11 12L7 12Z" fill="currentColor" />
+      </svg>
+    ),
+    status: null,
+  },
+  jsdos: {
+    label: "js dos",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="2" fill="none" />
+        <path d="M7 9L11 12L7 15" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <line x1="13" y1="15" x2="17" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ),
+    status: "alpha",
+  },
+  mame: {
+    label: "mame",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="8" cy="13" r="3" fill="currentColor" />
+        <circle cx="16" cy="14" r="2" fill="currentColor" />
+        <path d="M10 12L12 6L14 12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M12 6V2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ),
+    status: "beta",
+  },
+  nes: {
+    label: "nes",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <rect x="3" y="7" width="18" height="10" rx="2" stroke="currentColor" strokeWidth="2" fill="none" />
+        <circle cx="7.5" cy="12.5" r="1.2" fill="currentColor" />
+        <path d="M6 11.5L6 13.5M4.5 12L7.5 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="16.5" cy="12.5" r="1.2" fill="currentColor" />
+        <circle cx="19.5" cy="12.5" r="1.2" fill="currentColor" />
+      </svg>
+    ),
+    status: "beta",
+  },
+};
+
 export function MemoryPanel({
   cacheBusy,
   cacheLibrary,
@@ -52,18 +100,21 @@ export function MemoryPanel({
       </div>
 
       <div className="mode-toggle-row">
-        <button className={mode === "flash" ? "arcade-button hot" : "arcade-button"} onClick={() => switchMode("flash")} type="button">
-          flash
-        </button>
-        <button className={mode === "jsdos" ? "arcade-button cyan" : "arcade-button"} onClick={() => switchMode("jsdos")} type="button">
-          js dos
-        </button>
-        <button className={mode === "mame" ? "arcade-button cyan" : "arcade-button"} onClick={() => switchMode("mame")} type="button">
-          mame
-        </button>
-        <button className={mode === "nes" ? "arcade-button cyan" : "arcade-button"} onClick={() => switchMode("nes")} type="button">
-          nes
-        </button>
+        {Object.entries(MODE_BUTTONS).map(([modeKey, option]) => {
+          const modeName = modeKey as GameMode;
+          const isActive = mode === modeName;
+          const buttonClass = `arcade-button ${isActive ? "cyan" : ""}`.trim();
+
+          return (
+            <button key={modeName} className={buttonClass} onClick={() => switchMode(modeName)} type="button">
+              <span className="mode-button-content">
+                <span className="mode-button-icon">{option.icon}</span>
+                <span className="mode-button-text">{option.label}</span>
+              </span>
+              {option.status ? <span className={`mode-status-pill ${option.status}`}>{option.status}</span> : null}
+            </button>
+          );
+        })}
       </div>
 
       <div className="save-slots">

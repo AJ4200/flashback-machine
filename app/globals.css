@@ -1038,6 +1038,58 @@ h1 {
   box-shadow: 4px 4px 0 var(--yellow);
 }
 
+.mode-button-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.mode-button-icon {
+  display: inline-grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+}
+
+.mode-button-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.mode-button-text {
+  display: inline-block;
+  line-height: 1;
+}
+
+.mode-status-pill {
+  margin-top: 6px;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  background: rgba(0, 0, 0, 0.5);
+  color: inherit;
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
+}
+
+.mode-status-pill.alpha {
+  border-color: var(--magenta);
+  color: var(--magenta);
+}
+
+.mode-status-pill.beta {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.mode-toggle-row button {
+  gap: 0.35rem;
+  flex-direction: column;
+}
+
 .arcade-button.is-disabled,
 .arcade-button:disabled,
 .slot-actions button:disabled,

@@ -24,6 +24,22 @@ export const gameAssetPath = (mode: GameMode, file: string) => {
   return `/games/${folder}/${encodeURIComponent(file)}`;
 };
 
+export const supportedGameExtensions = (mode: GameMode) => {
+  switch (mode) {
+    case "flash":
+      return [/\.swf$/i];
+    case "jsdos":
+      return [/\.jsdos$/i];
+    case "mame":
+      return [/\.zip$/i, /\.7z$/i, /\.chd$/i];
+    case "nes":
+      return [/\.nes$/i];
+  }
+};
+
+export const isSupportedGameFile = (mode: GameMode, file: string) =>
+  supportedGameExtensions(mode).some((pattern) => pattern.test(file));
+
 export const slugFor = (value: string) =>
   value
     .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|chd)$/i, "")

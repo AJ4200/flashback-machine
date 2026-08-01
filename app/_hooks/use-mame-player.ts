@@ -50,6 +50,7 @@ export function useMamePlayer({ mountRef, reloadToken, selectedGame, setNotice }
       }
       moduleInstance.current = null;
       setPlayerStatus("waiting for game");
+      setMameReady(false);
       return;
     }
 
@@ -70,8 +71,6 @@ export function useMamePlayer({ mountRef, reloadToken, selectedGame, setNotice }
     const loadMame = async () => {
       try {
         setPlayerStatus("loading mame engine");
-
-        await loadScript(`${PUBLIC_CORE_PATH}/browserfs.min.js`);
 
         const remotePath = new URL(`${PUBLIC_CORE_PATH}/${MAME_CORE}_libretro.js`, window.location.href).href;
         const dynamicImport = new Function("url", "return import(url);");

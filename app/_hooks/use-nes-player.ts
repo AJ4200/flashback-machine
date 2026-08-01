@@ -20,6 +20,7 @@ export function useNesPlayer({ mountRef, reloadToken, selectedGame, setNotice }:
       playerRef.current?.destroy?.();
       playerRef.current = null;
       setPlayerStatus("waiting for game");
+      setNesReady(false);
       return;
     }
 

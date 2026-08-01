@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { FLAVORS } from "../_lib/constants";
-import { formatBytes, gameAssetPath, gameCatalogPath, titleFor } from "../_lib/games";
+import { formatBytes, gameAssetPath, gameCatalogPath, titleFor, isSupportedGameFile } from "../_lib/games";
 import type { Game, GameMode } from "../_lib/types";
 
 type UseGameCatalogOptions = {
@@ -12,6 +12,9 @@ type UseGameCatalogOptions = {
 
 export function useGameCatalog({ mode, onCatalogError }: UseGameCatalogOptions) {
   const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [totalFiles, setTotalFiles] = useState(0);
+  const [supportedCount, setSupportedCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState("");
   const [query, setQuery] = useState("");
 
@@ -35,11 +38,20 @@ export function useGameCatalog({ mode, onCatalogError }: UseGameCatalogOptions) 
   useEffect(() => {
     let cancelled = false;
 
+    setLoading(true);
+    setGames([]);
+    setTotalFiles(0);
+    setSupportedCount(0);
+
     fetch(gameCatalogPath(mode))
       .then((response) => response.json())
-      .then((files: string[]) =>
-        Promise.all(
-          files.map(async (file, index) => {
+      .then((files: string[]) => {
+        const supported = files.filter((file) => isSupportedGameFile(mode, file));
+        setTotalFiles(files.length);
+        setSupportedCount(supported.length);
+
+        return Promise.all(
+          supported.map(async (file, index) => {
             const head = await fetch(gameAssetPath(mode, file), { method: "HEAD" }).catch(() => null);
 
             return {
@@ -51,17 +63,21 @@ export function useGameCatalog({ mode, onCatalogError }: UseGameCatalogOptions) 
               size: formatBytes(Number(head?.headers.get("content-length"))),
             };
           }),
-        ),
-      )
+        );
+      })
       .then((loadedGames) => {
         if (cancelled) {
           return;
         }
 
         setGames(loadedGames);
+        setLoading(false);
       })
       .catch(() => {
-        onCatalogError();
+        if (!cancelled) {
+          onCatalogError();
+          setLoading(false);
+        }
       });
 
     return () => {
@@ -76,6 +92,9 @@ export function useGameCatalog({ mode, onCatalogError }: UseGameCatalogOptions) 
   return {
     filteredGames,
     games,
+    loading,
+    totalFiles,
+    supportedCount,
     query,
     selectedGame,
     selectGame,

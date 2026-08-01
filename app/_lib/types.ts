@@ -1,4 +1,4 @@
-export type GameMode = "flash" | "jsdos";
+export type GameMode = "flash" | "jsdos" | "mame" | "nes";
 
 export type Game = {
   file: string;
@@ -38,5 +38,6 @@ declare global {
         createPlayer: () => RufflePlayerElement;
       };
     };
+    BrowserFS?: any;
   }
 }

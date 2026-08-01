@@ -52,7 +52,7 @@ export function usePwa(games: Game[], selectedGame?: Game, mode: GameMode = "fla
       });
 
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-  }, []);
+  }, [mode]);
 
   const installPwa = async () => {
     const prompt = installPromptRef.current;

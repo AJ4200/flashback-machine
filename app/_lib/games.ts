@@ -2,20 +2,40 @@ import type { GameMode } from "./types";
 
 export const FLASH_CATALOG_PATH = "/games/flash/flashlist.json";
 export const JSDOS_CATALOG_PATH = "/games/jsdos/jsdoslist.json";
+export const MAME_CATALOG_PATH = "/games/mame/mamelist.json";
+export const NES_CATALOG_PATH = "/games/nes/neslist.json";
 
-export const gameCatalogPath = (mode: GameMode) => (mode === "flash" ? FLASH_CATALOG_PATH : JSDOS_CATALOG_PATH);
+export const gameCatalogPath = (mode: GameMode) => {
+  switch (mode) {
+    case "flash":
+      return FLASH_CATALOG_PATH;
+    case "jsdos":
+      return JSDOS_CATALOG_PATH;
+    case "mame":
+      return MAME_CATALOG_PATH;
+    case "nes":
+      return NES_CATALOG_PATH;
+  }
+};
 
-export const gameAssetPath = (mode: GameMode, file: string) =>
-  mode === "flash" ? `/games/flash/${encodeURIComponent(file)}` : `/games/jsdos/${encodeURIComponent(file)}`;
+export const gameAssetPath = (mode: GameMode, file: string) => {
+  const folder = mode === "flash" ? "flash" : mode === "jsdos" ? "jsdos" : mode;
+
+  return `/games/${folder}/${encodeURIComponent(file)}`;
+};
 
 export const slugFor = (value: string) =>
   value
-    .replace(/\.(swf|jsdos)$/i, "")
+    .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|chd)$/i, "")
     .replace(/[^a-z0-9]+/gi, "-")
     .replace(/^-|-$/g, "")
     .toLowerCase();
 
-export const titleFor = (file: string, mode: GameMode) => file.replace(mode === "flash" ? /\.swf$/i : /\.jsdos$/i, "");
+export const titleFor = (file: string, mode: GameMode) => {
+  const extension = mode === "flash" ? /\.swf$/i : mode === "jsdos" ? /\.jsdos$/i : mode === "mame" ? /\.(zip|7z|chd)$/i : /\.(nes|fds|unf|unif)$/i;
+
+  return file.replace(extension, "");
+};
 
 export const formatBytes = (bytes: number) => {
   if (!Number.isFinite(bytes)) {

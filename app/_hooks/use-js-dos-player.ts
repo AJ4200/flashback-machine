@@ -38,7 +38,7 @@ export function useJsDosPlayer({ mountRef, reloadToken, selectedGame, setNotice 
   }, []);
 
   useEffect(() => {
-    if (!selectedGame || selectedGame.mode !== "jsdos" || !mountRef.current || !window.Dos) {
+    if (!dosReady || !selectedGame || selectedGame.mode !== "jsdos" || !mountRef.current || !window.Dos) {
       return;
     }
 
@@ -79,7 +79,7 @@ export function useJsDosPlayer({ mountRef, reloadToken, selectedGame, setNotice 
       mount.innerHTML = "";
       rootRef.current = null;
     };
-  }, [mountRef, reloadToken, selectedGame, setNotice]);
+  }, [dosReady, mountRef, reloadToken, selectedGame, setNotice]);
 
   return {
     dosReady,

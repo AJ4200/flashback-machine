@@ -6,6 +6,8 @@ import { useAudioControls } from "../../_hooks/use-audio-controls";
 import { useBootSequence } from "../../_hooks/use-boot-sequence";
 import { useGameCatalog } from "../../_hooks/use-game-catalog";
 import { useJsDosPlayer } from "../../_hooks/use-js-dos-player";
+import { useMamePlayer } from "../../_hooks/use-mame-player";
+import { useNesPlayer } from "../../_hooks/use-nes-player";
 import { usePwa } from "../../_hooks/use-pwa";
 import { useRufflePlayer } from "../../_hooks/use-ruffle-player";
 import { useSaveSlots } from "../../_hooks/use-save-slots";
@@ -51,6 +53,18 @@ export function FlashBackMachineArcade() {
     selectedGame,
     setNotice,
   });
+  const { playerStatus: mamePlayerStatus, mameReady } = useMamePlayer({
+    mountRef,
+    reloadToken,
+    selectedGame,
+    setNotice,
+  });
+  const { playerStatus: nesPlayerStatus, nesReady } = useNesPlayer({
+    mountRef,
+    reloadToken,
+    selectedGame,
+    setNotice,
+  });
   const { cacheBusy, cacheLibrary, cacheSelectedGame, canInstall, installPwa, pwaStatus } = usePwa(games, selectedGame, mode);
   const { clearSlot, loadSlot, saveSlot, saveSlots } = useSaveSlots({
     onReload: reloadGame,
@@ -69,7 +83,7 @@ export function FlashBackMachineArcade() {
 
   const switchMode = (nextMode: GameMode) => {
     setMode(nextMode);
-    setNotice(`${nextMode === "flash" ? "flash" : "dos"} deck armed`);
+    setNotice(`${nextMode === "flash" ? "flash" : nextMode} deck armed`);
   };
 
   const enterFullscreen = () => {
@@ -98,8 +112,24 @@ export function FlashBackMachineArcade() {
         <div className="crt-noise" aria-hidden="true" />
         <Marquee
           mode={mode}
-          playerStatus={mode === "flash" ? flashPlayerStatus : dosPlayerStatus}
-          ruffleReady={mode === "flash" ? ruffleReady : dosReady}
+          playerStatus={
+            mode === "flash"
+              ? flashPlayerStatus
+              : mode === "jsdos"
+              ? dosPlayerStatus
+              : mode === "mame"
+              ? mamePlayerStatus
+              : nesPlayerStatus
+          }
+          ruffleReady={
+            mode === "flash"
+              ? ruffleReady
+              : mode === "jsdos"
+              ? dosReady
+              : mode === "mame"
+              ? mameReady
+              : nesReady
+          }
         />
 
         <section className="arcade-grid">

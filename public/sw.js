@@ -15,6 +15,11 @@ const SHELL_ASSETS = [
   "/ruffle/core.ruffle.99037c3e46986c91597b.js",
   "/ruffle/2ff4ebe4b64161970b9a.wasm",
   "/ruffle/a92f6442b0f55013a937.wasm",
+  "/emulators/retroarch/browserfs.min.js",
+  "/emulators/retroarch/mame2003_libretro.js",
+  "/emulators/retroarch/mame2003_libretro.wasm",
+  "/emulators/retroarch/nestopia_libretro.js",
+  "/emulators/retroarch/nestopia_libretro.wasm",
 ];
 
 self.addEventListener("install", (event) => {

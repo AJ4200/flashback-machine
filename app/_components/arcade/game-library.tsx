@@ -11,8 +11,11 @@ type GameLibraryProps = {
 };
 
 export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery }: GameLibraryProps) {
+  const libraryName = mode === "flash" ? "Flash" : mode === "jsdos" ? "JS DOS" : mode.toUpperCase();
+  const searchPlaceholder = mode === "flash" ? "game title" : `${mode} title`;
+
   return (
-    <aside className="library-panel" aria-label={`${mode === "flash" ? "Flash" : "JS DOS"} game library`}>
+    <aside className="library-panel" aria-label={`${libraryName} game library`}>
       <div className="panel-header">
         <span>cabinet wall</span>
         <strong>{gameCount.toString().padStart(2, "0")}</strong>
@@ -20,7 +23,7 @@ export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGam
 
       <label className="search-box">
         <span>find</span>
-        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={mode === "flash" ? "game title" : "dos title"} type="search" />
+        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={searchPlaceholder} type="search" />
       </label>
 
       <div className="game-list">

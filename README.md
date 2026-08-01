@@ -1,12 +1,14 @@
 # FlashBack Machine
 
-FlashBack Machine is an immersive retro browser arcade for classic Flash games. It uses the open source [Ruffle](https://ruffle.rs/) Flash emulator, a neon pixel-art interface, local save slots, fullscreen play, SWF downloads, and PWA offline caching.
+FlashBack Machine is an immersive retro browser arcade for classic Flash, DOS, MAME, and NES games. It uses the open source [Ruffle](https://ruffle.rs/) Flash emulator, a neon pixel-art interface, local save slots, fullscreen play, downloads, and PWA offline caching.
 
 Made with love by aj4200.
 
 ## Features
 
 - Ruffle-powered SWF playback from `public/games/flash`
+- JS DOS playback from `public/games/jsdos`
+- MAME and NES cabinet slots with upload-ready catalogs in `public/games/mame` and `public/games/nes`
 - Pixel arcade UI with boot splash, fake loader, CRT scanlines, neon colors, and transitions
 - Searchable game cabinet generated from `public/games/flash/flashlist.json`
 - Fullscreen cabinet mode
@@ -75,6 +77,15 @@ Example:
 ```
 
 The app reads this list at runtime and builds the cabinet wall automatically.
+
+MAME and NES folders are also ready for ROMs:
+
+```text
+public/games/mame/
+public/games/nes/
+```
+
+Add filenames to `mamelist.json` or `neslist.json`. The MAME and NES playback runtimes are reserved as engine slots until their emulator assets are added.
 
 ## Offline PWA
 

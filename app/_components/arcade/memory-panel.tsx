@@ -58,6 +58,12 @@ export function MemoryPanel({
         <button className={mode === "jsdos" ? "arcade-button cyan" : "arcade-button"} onClick={() => switchMode("jsdos")} type="button">
           js dos
         </button>
+        <button className={mode === "mame" ? "arcade-button cyan" : "arcade-button"} onClick={() => switchMode("mame")} type="button">
+          mame
+        </button>
+        <button className={mode === "nes" ? "arcade-button cyan" : "arcade-button"} onClick={() => switchMode("nes")} type="button">
+          nes
+        </button>
       </div>
 
       <div className="save-slots">

@@ -11,6 +11,7 @@ import { useNesPlayer } from "../../_hooks/use-nes-player";
 import { usePwa } from "../../_hooks/use-pwa";
 import { useRufflePlayer } from "../../_hooks/use-ruffle-player";
 import { useSaveSlots } from "../../_hooks/use-save-slots";
+import { useSegaPlayer } from "../../_hooks/use-sega-player";
 import { OFFLINE_PROMPT_DISMISSED_KEY } from "../../_lib/constants";
 import type { GameMode } from "../../_lib/types";
 import { BootOverlay } from "./boot-overlay";
@@ -37,7 +38,7 @@ export function FlashBackMachineArcade() {
     setNotice("game catalog missing");
   }, []);
 
-  const { filteredGames, games, loading, totalFiles, supportedCount, unsupportedFiles, mapperExcludedFiles, query, selectedGame, selectGame, setQuery } = useGameCatalog({ mode, onCatalogError });
+  const { filteredGames, games, loading, totalFiles, supportedCount, unsupportedFiles, query, selectedGame, selectGame, setQuery } = useGameCatalog({ mode, onCatalogError });
   const { bootProgress, bootReady, bootStarted, startBoot } = useBootSequence();
   const { effectiveVolume, muted, setVolume, toggleMuted, volume } = useAudioControls();
   const { playerStatus: flashPlayerStatus, ruffleReady, setPlayerStatus: setFlashPlayerStatus, setRuffleReady } = useRufflePlayer({
@@ -65,6 +66,12 @@ export function FlashBackMachineArcade() {
     selectedGame,
     setNotice,
   });
+  const { playerStatus: segaPlayerStatus, segaReady } = useSegaPlayer({
+    mountRef,
+    reloadToken,
+    selectedGame,
+    setNotice,
+  });
   const { cacheBusy, cacheLibrary, cacheSelectedGame, canInstall, installPwa, pwaStatus } = usePwa(games, selectedGame, mode);
   const { clearSlot, loadSlot, saveSlot, saveSlots } = useSaveSlots({
     onReload: reloadGame,
@@ -83,7 +90,7 @@ export function FlashBackMachineArcade() {
 
   const switchMode = (nextMode: GameMode) => {
     setMode(nextMode);
-    setNotice(`${nextMode === "flash" ? "flash" : nextMode} deck armed`);
+    setNotice(`${nextMode.toUpperCase()} deck armed`);
   };
 
   const enterFullscreen = () => {
@@ -119,6 +126,8 @@ export function FlashBackMachineArcade() {
               ? dosPlayerStatus
               : mode === "mame"
               ? mamePlayerStatus
+              : mode === "sega"
+              ? segaPlayerStatus
               : nesPlayerStatus
           }
           ruffleReady={
@@ -128,6 +137,8 @@ export function FlashBackMachineArcade() {
               ? dosReady
               : mode === "mame"
               ? mameReady
+              : mode === "sega"
+              ? segaReady
               : nesReady
           }
         />
@@ -145,7 +156,6 @@ export function FlashBackMachineArcade() {
             totalFiles={totalFiles}
             supportedCount={supportedCount}
             unsupportedFiles={unsupportedFiles}
-            mapperExcludedFiles={mapperExcludedFiles}
           />
           <Cabinet
             gameCount={games.length}

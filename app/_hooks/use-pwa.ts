@@ -5,6 +5,20 @@ import { PWA_GAME_CACHE, PWA_RUNTIME_CACHE } from "../_lib/constants";
 import { gameAssetPath, gameCatalogPath } from "../_lib/games";
 import type { BeforeInstallPromptEvent, Game, GameMode } from "../_lib/types";
 
+const RUNTIME_URLS = [
+  "/ruffle/ruffle.js",
+  "/emulators/retroarch/genesis_plus_gx_libretro.js",
+  "/emulators/retroarch/genesis_plus_gx_libretro.wasm",
+  "/emulators/retroarch/mame2000_libretro.js",
+  "/emulators/retroarch/mame2000_libretro.wasm",
+  "/emulators/retroarch/mame2003_libretro.js",
+  "/emulators/retroarch/mame2003_libretro.wasm",
+  "/emulators/retroarch/mame2003_plus_libretro.js",
+  "/emulators/retroarch/mame2003_plus_libretro.wasm",
+  "/emulators/retroarch/nestopia_libretro.js",
+  "/emulators/retroarch/nestopia_libretro.wasm",
+];
+
 export function usePwa(games: Game[], selectedGame?: Game, mode: GameMode = "flash") {
   const [pwaStatus, setPwaStatus] = useState("offline core standby");
   const [canInstall, setCanInstall] = useState(false);
@@ -38,7 +52,7 @@ export function usePwa(games: Game[], selectedGame?: Game, mode: GameMode = "fla
           .map((entry) => entry.name)
           .filter((url) => url.startsWith(window.location.origin))
           .map((url) => new URL(url).pathname);
-        const urls = Array.from(new Set(["/", "/manifest.webmanifest", gameCatalogPath(mode), "/ruffle/ruffle.js", ...resources]));
+        const urls = Array.from(new Set(["/", "/manifest.webmanifest", gameCatalogPath(mode), ...RUNTIME_URLS, ...resources]));
 
         if ("caches" in window) {
           const cache = await caches.open(PWA_RUNTIME_CACHE);

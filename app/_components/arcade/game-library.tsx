@@ -12,11 +12,10 @@ type GameLibraryProps = {
   totalFiles?: number;
   supportedCount?: number;
   unsupportedFiles?: string[];
-  mapperExcludedFiles?: string[];
 };
 
-export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery, isLoading, totalFiles, supportedCount, unsupportedFiles, mapperExcludedFiles }: GameLibraryProps) {
-  const libraryName = mode === "flash" ? "Flash" : mode === "jsdos" ? "JS DOS" : mode.toUpperCase();
+export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery, isLoading, totalFiles, supportedCount, unsupportedFiles }: GameLibraryProps) {
+  const libraryName = mode === "flash" ? "Flash" : mode === "jsdos" ? "JS DOS" : mode === "sega" ? "Sega" : mode.toUpperCase();
   const searchPlaceholder = mode === "flash" ? "game title" : `${mode} title`;
 
   return (
@@ -47,11 +46,11 @@ export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGam
               ) : mode === "mame" && typeof totalFiles === "number" && totalFiles > 0 && supportedCount === 0 ? (
                 "The catalog contains files, but none are supported (.zip, .7z, .chd). Check mamelist.json or file extensions."
               ) : mode === "mame" ? (
-                "Add .zip, .7z or .chd ROMs to public/games/mame and list them in mamelist.json"
-              ) : mode === "nes" && mapperExcludedFiles && mapperExcludedFiles.length > 0 ? (
-                `Some ${mapperExcludedFiles.length} NES ROM${mapperExcludedFiles.length === 1 ? " was" : "s were"} excluded due to unsupported mapper(s). Use plain iNES .nes ROMs.`
+                "Add MAME 2003-Plus compatible .zip, .7z or .chd ROMs to public/games/mame and list them in mamelist.json"
               ) : mode === "nes" ? (
-                "Add plain .nes ROMs to public/games/nes and list them in neslist.json"
+                "Add .nes, .fds, .unf or .unif ROMs to public/games/nes and list them in neslist.json"
+              ) : mode === "sega" ? (
+                "Add Sega .md, .gen, .smd, .bin, .sms, .gg, .cue, .iso or .chd files to public/games/sega and list them in segalist.json"
               ) : (
                 `Place valid ${mode} files into public/games/${mode} and list them in the catalog`
               )}

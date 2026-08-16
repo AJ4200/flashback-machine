@@ -23,11 +23,11 @@ export function LoveBadge() {
           </section>
           <section>
             <strong>cache</strong>
-            <p>Stores the app shell, icons, Ruffle runtime, game catalog, and any cached SWF files in browser cache storage for offline play.</p>
+            <p>Stores the app shell, icons, emulator runtimes, game catalogs, and cached game files in browser cache storage for offline play.</p>
           </section>
           <section>
             <strong>saves</strong>
-            <p>Game progress uses browser storage when a SWF supports it. FlashBack Machine slots copy that Flash save data, not the live emulator RAM state.</p>
+            <p>Game progress uses browser storage when the active runtime supports it. FlashBack Machine slots copy browser save data, not live emulator RAM state.</p>
           </section>
         </div>
       </details>

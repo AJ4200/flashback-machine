@@ -4,6 +4,7 @@ export const FLASH_CATALOG_PATH = "/games/flash/flashlist.json";
 export const JSDOS_CATALOG_PATH = "/games/jsdos/jsdoslist.json";
 export const MAME_CATALOG_PATH = "/games/mame/mamelist.json";
 export const NES_CATALOG_PATH = "/games/nes/neslist.json";
+export const SEGA_CATALOG_PATH = "/games/sega/segalist.json";
 
 export const gameCatalogPath = (mode: GameMode) => {
   switch (mode) {
@@ -15,6 +16,8 @@ export const gameCatalogPath = (mode: GameMode) => {
       return MAME_CATALOG_PATH;
     case "nes":
       return NES_CATALOG_PATH;
+    case "sega":
+      return SEGA_CATALOG_PATH;
   }
 };
 
@@ -33,7 +36,9 @@ export const supportedGameExtensions = (mode: GameMode) => {
     case "mame":
       return [/\.zip$/i, /\.7z$/i, /\.chd$/i];
     case "nes":
-      return [/\.nes$/i];
+      return [/\.nes$/i, /\.fds$/i, /\.unf$/i, /\.unif$/i];
+    case "sega":
+      return [/\.md$/i, /\.gen$/i, /\.smd$/i, /\.bin$/i, /\.sms$/i, /\.gg$/i, /\.sg$/i, /\.cue$/i, /\.iso$/i, /\.chd$/i];
   }
 };
 
@@ -42,13 +47,22 @@ export const isSupportedGameFile = (mode: GameMode, file: string) =>
 
 export const slugFor = (value: string) =>
   value
-    .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|chd)$/i, "")
+    .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|md|gen|smd|bin|sms|gg|sg|cue|iso|chd)$/i, "")
     .replace(/[^a-z0-9]+/gi, "-")
     .replace(/^-|-$/g, "")
     .toLowerCase();
 
 export const titleFor = (file: string, mode: GameMode) => {
-  const extension = mode === "flash" ? /\.swf$/i : mode === "jsdos" ? /\.jsdos$/i : mode === "mame" ? /\.(zip|7z|chd)$/i : /\.(nes|fds|unf|unif)$/i;
+  const extension =
+    mode === "flash"
+      ? /\.swf$/i
+      : mode === "jsdos"
+      ? /\.jsdos$/i
+      : mode === "mame"
+      ? /\.(zip|7z|chd)$/i
+      : mode === "sega"
+      ? /\.(md|gen|smd|bin|sms|gg|sg|cue|iso|chd)$/i
+      : /\.(nes|fds|unf|unif)$/i;
 
   return file.replace(extension, "");
 };
@@ -60,10 +74,3 @@ export const formatBytes = (bytes: number) => {
 
   return bytes > 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 };
-
-// List of mapper numbers implemented by jsnes (from node_modules/jsnes/src/mappers)
-export const SUPPORTED_NES_MAPPERS = [
-  0, 1, 2, 3, 4, 5, 7, 9, 11, 34, 38, 66, 71, 79, 94, 118, 119, 140, 180, 240, 241,
-];
-
-export const isNesMapperSupported = (mapper: number) => SUPPORTED_NES_MAPPERS.includes(mapper);

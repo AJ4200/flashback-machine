@@ -16,7 +16,7 @@ const arcadeText = VT323({
 
 export const metadata: Metadata = {
   title: "FlashBack Machine",
-  description: "A neon browser arcade for classic Flash games powered by Ruffle.",
+  description: "A neon browser arcade for classic Flash, DOS, NES, MAME, and Sega games.",
 };
 
 export default function RootLayout({

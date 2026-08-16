@@ -12,7 +12,7 @@ type CabinetProps = {
 };
 
 export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, selectedGame, stageRef }: CabinetProps) {
-  const engineName = mode === "flash" ? "Flash" : mode === "jsdos" ? "DOS" : mode.toUpperCase();
+  const engineName = mode === "flash" ? "Flash" : mode === "jsdos" ? "DOS" : mode === "sega" ? "SEGA" : mode.toUpperCase();
 
   return (
     <section className="cabinet">
@@ -33,12 +33,12 @@ export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, sel
                 </div>
                 <div className="welcome-prompt">
                   <span>ready</span>
-                  <span>{mode === "flash" ? "select game" : `boot ${engineName} title`}</span>
+                  <span>{`boot ${engineName} title`}</span>
                 </div>
               </div>
             ) : (
               <div className="screen-standby">
-                <span>{mode === "flash" ? "INSERT CARTRIDGE" : `LOAD ${engineName} ROM`}</span>
+                <span>{mode === "flash" ? "LOAD FLASH GAME" : `LOAD ${engineName} ROM`}</span>
               </div>
             )}
           </div>

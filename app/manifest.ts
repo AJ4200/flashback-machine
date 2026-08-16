@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "FlashBack Machine",
     short_name: "FlashBack",
-    description: "A neon offline-ready browser arcade for classic Flash games powered by Ruffle.",
+    description: "A neon offline-ready browser arcade for classic Flash, DOS, NES, MAME, and Sega games.",
     start_url: "/",
     scope: "/",
     display: "standalone",

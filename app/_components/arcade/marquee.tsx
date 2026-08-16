@@ -10,13 +10,15 @@ export function Marquee({ mode, playerStatus, ruffleReady }: MarqueeProps) {
   const engineLabel = "FLASHBACK ENGINE";
   const modeTag =
     mode === "jsdos"
-      ? "JSDOS MODE UNDER DEVELOPMENT"
+      ? "JSDOS DOS LIBRARY"
       : mode === "nes"
-      ? "NES MODE UNDER DEVELOPMENT"
+      ? "NES NESTOPIA CORE"
       : mode === "mame"
-      ? "MAME MODE UNDER DEVELOPMENT"
+      ? "MAME 2003-PLUS CORE"
+      : mode === "sega"
+      ? "SEGA GENESIS PLUS GX CORE"
       : undefined;
-  const runtimeStatus = mode === "flash" ? (ruffleReady ? "RUFFLE ONLINE" : "RUFFLE BOOTING") : mode === "jsdos" ? "JS DOS ONLINE" : `${mode.toUpperCase()} ENGINE SLOT`;
+  const runtimeStatus = mode === "flash" ? (ruffleReady ? "RUFFLE ONLINE" : "RUFFLE BOOTING") : ruffleReady ? `${mode.toUpperCase()} ONLINE` : `${mode.toUpperCase()} BOOTING`;
 
   return (
     <section className="marquee">

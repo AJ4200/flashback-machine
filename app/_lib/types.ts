@@ -1,4 +1,4 @@
-export type GameMode = "flash" | "jsdos" | "mame" | "nes";
+export type GameMode = "flash" | "jsdos" | "mame" | "nes" | "sega";
 
 export type Game = {
   file: string;

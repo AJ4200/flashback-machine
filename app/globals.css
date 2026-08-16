@@ -1085,6 +1085,11 @@ h1 {
   color: var(--cyan);
 }
 
+.mode-status-pill.new {
+  border-color: var(--lime);
+  color: var(--lime);
+}
+
 .mode-toggle-row button {
   gap: 0.35rem;
   flex-direction: column;

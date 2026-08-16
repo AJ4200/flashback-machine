@@ -10,14 +10,23 @@ const SHELL_ASSETS = [
   "/icons/flashback-machine-512.png",
   "/icons/flashback-machine-maskable-512.png",
   "/games/flash/flashlist.json",
+  "/games/jsdos/jsdoslist.json",
+  "/games/mame/mamelist.json",
+  "/games/nes/neslist.json",
+  "/games/sega/segalist.json",
   "/ruffle/ruffle.js",
   "/ruffle/core.ruffle.8700c6b0144208de9d1b.js",
   "/ruffle/core.ruffle.99037c3e46986c91597b.js",
   "/ruffle/2ff4ebe4b64161970b9a.wasm",
   "/ruffle/a92f6442b0f55013a937.wasm",
-  "/emulators/retroarch/browserfs.min.js",
+  "/emulators/retroarch/genesis_plus_gx_libretro.js",
+  "/emulators/retroarch/genesis_plus_gx_libretro.wasm",
+  "/emulators/retroarch/mame2000_libretro.js",
+  "/emulators/retroarch/mame2000_libretro.wasm",
   "/emulators/retroarch/mame2003_libretro.js",
   "/emulators/retroarch/mame2003_libretro.wasm",
+  "/emulators/retroarch/mame2003_plus_libretro.js",
+  "/emulators/retroarch/mame2003_plus_libretro.wasm",
   "/emulators/retroarch/nestopia_libretro.js",
   "/emulators/retroarch/nestopia_libretro.wasm",
 ];
@@ -89,7 +98,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (url.pathname.startsWith("/ruffle/") || url.pathname.startsWith("/icons/") || url.pathname.startsWith("/_next/")) {
+  if (url.pathname.startsWith("/ruffle/") || url.pathname.startsWith("/emulators/") || url.pathname.startsWith("/icons/") || url.pathname.startsWith("/_next/")) {
     event.respondWith(cacheFirst(request, RUNTIME_CACHE));
     return;
   }

@@ -8,8 +8,8 @@ Made with love by aj4200.
 
 - Ruffle-powered SWF playback from `public/games/flash`
 - js-dos playback from `public/games/jsdos`
-- NES playback through the bundled Nestopia RetroArch core
-- MAME playback through the bundled MAME 2003-Plus RetroArch core
+- NES playback with automatic fallback across the bundled Nestopia, FCEUmm, and QuickNES RetroArch cores
+- MAME playback with automatic fallback across the bundled MAME 2003-Plus, MAME 2003, and MAME 2000 RetroArch cores
 - Sega playback through the bundled Genesis Plus GX RetroArch core
 - Pixel arcade UI with boot splash, fake loader, CRT scanlines, neon colors, and transitions
 - Searchable game cabinet generated from each emulator catalog
@@ -89,7 +89,7 @@ public/games/nes/
 public/games/sega/
 ```
 
-MAME note: MAME is not universal by file extension alone. Arcade zip contents must match the selected core's romset. This build defaults to MAME 2003-Plus and also ships MAME 2000/MAME 2003 assets for future core switching.
+NES and MAME note: The player starts with the broad-compatibility core and retries another bundled core when it detects a ROM load error. Arcade ROM sets still need to match a core's supported game and ROM version; the fallback can help with version mismatches but cannot supply missing files or BIOS images.
 
 ## Offline PWA
 

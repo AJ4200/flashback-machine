@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import type { Game } from "../_lib/types";
 
 type UseLibretroPlayerOptions = {
-  core: string;
+  core: string | readonly string[];
   label: string;
   mode: Game["mode"];
   mountRef: RefObject<HTMLDivElement | null>;
@@ -15,6 +15,28 @@ type UseLibretroPlayerOptions = {
 
 const PUBLIC_CORE_PATH = "/emulators/retroarch";
 const CONTENT_ROOT = "/home/web_user/retroarch/userdata/content";
+
+function coreLabel(core: string) {
+  const labels: Record<string, string> = {
+    fceumm: "FCEUmm",
+    mame2000: "MAME 2000",
+    mame2003: "MAME 2003",
+    mame2003_plus: "MAME 2003-Plus",
+    nestopia: "Nestopia",
+    quicknes: "QuickNES",
+  };
+
+  return labels[core] ?? core;
+}
+
+function contentLoadFailure(mode: Game["mode"], output: string) {
+  const diagnostics =
+    mode === "mame"
+      ? /(?:game|roms?)\s+(?:not found|missing|not supported)|unable to find game|failed to (?:load|process) (?:content|rom)|no games? found|incorrect checksum|required files are missing|readroms failed|--help for more information|unknown (?:option|argument)|unrecognized option/i
+      : /unsupported (?:mapper|board)|unknown mapper|invalid (?:rom|image)|failed to (?:load|process) (?:content|rom)|not a valid (?:rom|image)|--help for more information|unknown (?:option|argument)|unrecognized option/i;
+
+  return diagnostics.test(output) ? output : undefined;
+}
 
 async function loadCore(core: string) {
   const remotePath = new URL(`${PUBLIC_CORE_PATH}/${core}_libretro.js`, window.location.href).href;
@@ -63,65 +85,122 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
 
     const boot = async () => {
       try {
-        setPlayerStatus(`loading ${label} core`);
-
         const contentPath = `${CONTENT_ROOT}/${selectedGame.file}`;
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.max(container.clientWidth, 640);
-        canvas.height = Math.max(container.clientHeight, 480);
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.display = "block";
-        container.appendChild(canvas);
-
-        const Module = {
-          noInitialRun: true,
-          canvas,
-          arguments: ["-v", "--load-content", contentPath],
-          locateFile: (path: string) => `${PUBLIC_CORE_PATH}/${path}`,
-          print: console.log,
-          printErr: console.error,
-          onRuntimeInitialized: () => {
-            if (!cancelled) {
-              setPlayerStatus("engine booted");
-            }
-          },
-        };
-
-        const createCore = await loadCore(core);
-        const emulator = await createCore(Module);
-        moduleInstance.current = emulator;
-        setReady(true);
-
-        if (cancelled) {
-          return;
-        }
-
+        setReady(false);
         const romResponse = await fetch(selectedGame.path);
         if (!romResponse.ok) {
           throw new Error(`failed to fetch ${selectedGame.file}`);
         }
 
         const romData = new Uint8Array(await romResponse.arrayBuffer());
-
-        if (emulator.FS) {
-          for (const folder of ["/home", "/home/web_user", "/home/web_user/retroarch", "/home/web_user/retroarch/userdata", CONTENT_ROOT]) {
-            ensureDirectory(emulator.FS, folder);
-          }
-
-          if (emulator.FS.analyzePath(contentPath).exists) {
-            emulator.FS.unlink(contentPath);
-          }
-
-          emulator.FS.createDataFile(CONTENT_ROOT, selectedGame.file, romData, true, true);
+        if (cancelled) {
+          return;
         }
 
-        if (typeof emulator.callMain === "function") {
-          emulator.callMain(Module.arguments);
-        }
+        const cores = typeof core === "string" ? [core] : core;
+        const failures: string[] = [];
 
-        setPlayerStatus("live");
-        setNotice(`${selectedGame.title} inserted`);
+        for (let coreIndex = 0; coreIndex < cores.length; coreIndex += 1) {
+          const currentCore = cores[coreIndex];
+          let loadFailure: string | undefined;
+          const captureOutput = (line: string) => {
+            loadFailure ??= contentLoadFailure(mode, line);
+          };
+          let emulator: any = null;
+
+          if (cancelled) {
+            return;
+          }
+
+          if (coreIndex > 0) {
+            setPlayerStatus(`retrying ${label} with ${coreLabel(currentCore)}`);
+          } else {
+            setPlayerStatus(`loading ${coreLabel(currentCore)}`);
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(container.clientWidth, 640);
+          canvas.height = Math.max(container.clientHeight, 480);
+          canvas.style.width = "100%";
+          canvas.style.height = "100%";
+          canvas.style.display = "block";
+          container.replaceChildren(canvas);
+
+          const Module = {
+            noInitialRun: true,
+            canvas,
+            arguments: ["-v", contentPath],
+            locateFile: (path: string) => `${PUBLIC_CORE_PATH}/${path}`,
+            print: captureOutput,
+            printErr: captureOutput,
+            onRuntimeInitialized: () => {
+              if (!cancelled) {
+                setPlayerStatus(`${coreLabel(currentCore)} engine booted`);
+              }
+            },
+          };
+
+          try {
+            const createCore = await loadCore(currentCore);
+            emulator = await createCore(Module);
+            moduleInstance.current = emulator;
+
+            if (cancelled) {
+              return;
+            }
+
+            if (!emulator?.FS) {
+              throw new Error(`${coreLabel(currentCore)} filesystem unavailable`);
+            }
+
+            for (const folder of ["/home", "/home/web_user", "/home/web_user/retroarch", "/home/web_user/retroarch/userdata", CONTENT_ROOT]) {
+              ensureDirectory(emulator.FS, folder);
+            }
+
+            if (emulator.FS.analyzePath(contentPath).exists) {
+              emulator.FS.unlink(contentPath);
+            }
+
+            emulator.FS.createDataFile(CONTENT_ROOT, selectedGame.file, romData, true, true);
+
+            if (typeof emulator.callMain !== "function") {
+              throw new Error(`${coreLabel(currentCore)} runtime entry point unavailable`);
+            }
+            emulator.callMain(Module.arguments);
+
+            await new Promise<void>((resolve) => window.setTimeout(resolve, 300));
+            if (cancelled) {
+              return;
+            }
+
+            if (loadFailure) {
+              throw new Error(`${coreLabel(currentCore)} could not load ${selectedGame.file}: ${loadFailure}`);
+            }
+
+            setReady(true);
+            setPlayerStatus("live");
+            setNotice(`${selectedGame.title} inserted (${coreLabel(currentCore)})`);
+            return;
+          } catch (error) {
+            if (emulator && typeof emulator.quit === "function") {
+              try {
+                emulator.quit(0);
+              } catch {
+                // Ignore shutdown errors while moving to the next core.
+              }
+            }
+            if (moduleInstance.current === emulator) {
+              moduleInstance.current = null;
+            }
+
+            failures.push(`${coreLabel(currentCore)}: ${error instanceof Error ? error.message : String(error)}`);
+            if (coreIndex === cores.length - 1) {
+              throw new Error(failures.join("; "));
+            }
+
+            console.warn(`${coreLabel(currentCore)} could not load ${selectedGame.file}; trying another core.`);
+          }
+        }
       } catch (error) {
         console.error(error);
         setPlayerStatus(`${label} runtime error`);

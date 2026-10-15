@@ -27,6 +27,10 @@ const SHELL_ASSETS = [
   "/emulators/retroarch/mame2003_libretro.wasm",
   "/emulators/retroarch/mame2003_plus_libretro.js",
   "/emulators/retroarch/mame2003_plus_libretro.wasm",
+  "/emulators/retroarch/fceumm_libretro.js",
+  "/emulators/retroarch/fceumm_libretro.wasm",
+  "/emulators/retroarch/quicknes_libretro.js",
+  "/emulators/retroarch/quicknes_libretro.wasm",
   "/emulators/retroarch/nestopia_libretro.js",
   "/emulators/retroarch/nestopia_libretro.wasm",
 ];

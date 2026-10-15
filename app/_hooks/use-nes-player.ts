@@ -4,6 +4,8 @@ import type { RefObject } from "react";
 import type { Game } from "../_lib/types";
 import { useLibretroPlayer } from "./use-libretro-player";
 
+const NES_CORES = ["nestopia", "fceumm", "quicknes"] as const;
+
 type UseNesPlayerOptions = {
   mountRef: RefObject<HTMLDivElement | null>;
   reloadToken: number;
@@ -13,7 +15,7 @@ type UseNesPlayerOptions = {
 
 export function useNesPlayer({ mountRef, reloadToken, selectedGame, setNotice }: UseNesPlayerOptions) {
   const { playerStatus, ready, setPlayerStatus, setReady } = useLibretroPlayer({
-    core: "nestopia",
+    core: NES_CORES,
     label: "nes",
     mode: "nes",
     mountRef,

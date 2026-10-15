@@ -12,9 +12,9 @@ export function Marquee({ mode, playerStatus, ruffleReady }: MarqueeProps) {
     mode === "jsdos"
       ? "JSDOS DOS LIBRARY"
       : mode === "nes"
-      ? "NES NESTOPIA CORE"
+      ? "NES AUTO-DETECT CORE"
       : mode === "mame"
-      ? "MAME 2003-PLUS CORE"
+      ? "MAME AUTO-DETECT CORE"
       : mode === "sega"
       ? "SEGA GENESIS PLUS GX CORE"
       : undefined;

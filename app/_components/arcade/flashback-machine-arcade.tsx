@@ -122,6 +122,13 @@ export function FlashBackMachineArcade() {
       : mode === "ps2"
       ? ps2Ready
       : segaReady;
+  const bootLines = [
+    `FLASH / RUFFLE: ${ruffleReady ? "READY" : /error|blocked|failed/i.test(flashPlayerStatus) ? "ERROR" : "LOADING"}`,
+    `DOS / JS-DOS: ${dosReady ? "READY" : /error|blocked|failed/i.test(dosPlayerStatus) ? "ERROR" : "LOADING"}`,
+    "RETROARCH NES / MAME / SEGA / GAME BOY: LOAD ON SELECT",
+    "PLAY! PLAYSTATION 2: LOAD ON SELECT",
+    "KEYBOARD + USB / BLUETOOTH GAMEPAD: PER-SYSTEM MAPPINGS",
+  ];
 
   const appendActivity = useCallback((message: string, level: ActivityLine["level"] = "info") => {
     const time = new Date().toLocaleTimeString(undefined, {
@@ -268,7 +275,7 @@ export function FlashBackMachineArcade() {
         <LoveBadge />
       </main>
 
-      <BootOverlay bootProgress={bootProgress} bootReady={bootReady} bootStarted={bootStarted} onStart={startBoot} />
+      <BootOverlay bootLines={bootLines} bootProgress={bootProgress} bootReady={bootReady} bootStarted={bootStarted} onStart={startBoot} />
       <OfflinePrompt
         cacheBusy={cacheBusy}
         canInstall={canInstall}

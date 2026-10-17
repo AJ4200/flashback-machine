@@ -16,6 +16,7 @@ Made with love by aj4200.
 - Pixel arcade UI with boot splash, fake loader, CRT scanlines, neon colors, and transitions
 - Searchable game cabinet generated from each emulator catalog
 - Collapsible emulator selector, live startup terminal, and in-screen loading/error feedback
+- Per-emulator keyboard and Gamepad API mappings with plug-and-play standard-layout Xbox 360 controller defaults
 - Fullscreen cabinet mode
 - Download button for the selected game file
 - Three manual save-data slots for browser-backed save data
@@ -101,6 +102,8 @@ NES and MAME note: The player starts with the broad-compatibility core and retri
 PS2 note: The experimental Play! browser emulator supports `.iso`, `.cso`, `.chd`, `.isz`, `.bin`, and `.elf` game images without a BIOS file. Game compatibility and performance vary, and larger images need enough browser memory. The bundled Play! runtime is under `public/emulators/ps2`, is sourced from [Play!](https://github.com/jpd002/Play-), and is distributed with its license.
 
 Game Boy note: The bundled mGBA core supports `.gb`, `.gbc`, and `.gba` ROMs. The runtime files and mGBA license are in `public/emulators/retroarch`.
+
+Controller note: Open `controller setup` in the right-side panel to see connected gamepads, remap keyboard keys or gamepad buttons for the selected emulator, and restore that emulator's defaults. Standard-layout Xbox 360 USB controllers use the preset mapping; other Gamepad API controllers can be remapped. The left stick and D-pad both control directions. Custom mappings are saved in this browser.
 
 ## Offline PWA
 

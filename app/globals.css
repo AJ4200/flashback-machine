@@ -1275,6 +1275,339 @@ h1 {
   color: var(--magenta);
 }
 
+.controller-mapping {
+  overflow: hidden;
+  border: 2px solid rgba(255, 43, 214, 0.56);
+  background:
+    linear-gradient(145deg, rgba(255, 43, 214, 0.11), rgba(33, 244, 255, 0.04) 48%, transparent 75%),
+    rgba(5, 5, 12, 0.94);
+  box-shadow: 4px 4px 0 rgba(255, 43, 214, 0.2), inset 0 0 24px rgba(33, 244, 255, 0.035);
+}
+
+.controller-mapping summary {
+  display: flex;
+  min-height: 66px;
+  align-items: center;
+  gap: 11px;
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 12px;
+}
+
+.controller-mapping summary::-webkit-details-marker {
+  display: none;
+}
+
+.controller-card-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  place-items: center;
+  border: 1px solid rgba(33, 244, 255, 0.55);
+  background: rgba(33, 244, 255, 0.1);
+  color: var(--cyan);
+  box-shadow: inset 0 0 12px rgba(33, 244, 255, 0.12);
+}
+
+.controller-card-icon svg {
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.controller-card-title {
+  display: grid;
+  flex: 1;
+  gap: 5px;
+  min-width: 0;
+}
+
+.controller-card-title strong {
+  color: var(--cyan);
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.48rem;
+  text-transform: uppercase;
+}
+
+.controller-card-title small {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.controller-card-toggle {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  border: 1px solid rgba(255, 230, 109, 0.48);
+  background: rgba(255, 230, 109, 0.08);
+}
+
+.controller-card-toggle::before,
+.controller-card-toggle::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 11px;
+  height: 2px;
+  background: var(--yellow);
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.controller-card-toggle::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.controller-mapping[open] .controller-card-toggle::after {
+  display: none;
+}
+
+.controller-mapping[open] summary {
+  border-bottom: 1px solid rgba(255, 43, 214, 0.36);
+  background: rgba(255, 43, 214, 0.055);
+}
+
+.controller-card-content {
+  display: grid;
+  gap: 10px;
+  padding: 11px;
+}
+
+.controller-device-card {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  min-height: 56px;
+  border: 1px solid rgba(33, 244, 255, 0.26);
+  background: linear-gradient(100deg, rgba(33, 244, 255, 0.075), rgba(33, 244, 255, 0.015));
+  padding: 9px 10px;
+}
+
+.controller-device-indicator {
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--yellow);
+  border-radius: 50%;
+  background: rgba(255, 230, 109, 0.18);
+  box-shadow: 0 0 9px rgba(255, 230, 109, 0.3);
+}
+
+.controller-device-card.is-connected .controller-device-indicator {
+  border-color: var(--lime);
+  background: var(--lime);
+  box-shadow: 0 0 10px rgba(184, 255, 22, 0.7);
+}
+
+.controller-device-info {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.controller-device-info small,
+.controller-binding-heading span {
+  color: var(--yellow);
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.4rem;
+  text-transform: uppercase;
+}
+
+.controller-device-info strong {
+  color: var(--lime);
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+
+.controller-help {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  padding: 0 2px;
+}
+
+.controller-test-readout {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 230, 109, 0.35);
+  background:
+    linear-gradient(110deg, rgba(255, 230, 109, 0.09), rgba(255, 230, 109, 0.015)),
+    rgba(5, 5, 10, 0.72);
+  padding: 9px 10px;
+}
+
+.controller-test-icon {
+  display: grid;
+  width: 38px;
+  height: 32px;
+  flex: 0 0 38px;
+  place-items: center;
+  border: 1px solid rgba(255, 230, 109, 0.42);
+  color: var(--yellow);
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.44rem;
+  text-transform: uppercase;
+}
+
+.controller-test-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.controller-test-copy small {
+  color: var(--yellow);
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.38rem;
+  text-transform: uppercase;
+}
+
+.controller-test-copy strong {
+  color: var(--foreground);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.controller-test-readout.is-active {
+  border-color: var(--lime);
+  background: linear-gradient(110deg, rgba(184, 255, 22, 0.14), rgba(184, 255, 22, 0.025));
+  box-shadow: inset 3px 0 var(--lime), 0 0 14px rgba(184, 255, 22, 0.1);
+}
+
+.controller-test-readout.is-active .controller-test-icon {
+  border-color: var(--lime);
+  color: var(--lime);
+}
+
+.controller-test-readout.is-active .controller-test-copy small,
+.controller-test-readout.is-active .controller-test-copy strong {
+  color: var(--lime);
+}
+
+.controller-binding-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 1px 0;
+}
+
+.controller-binding-heading small {
+  color: var(--muted);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.68rem;
+}
+
+.controller-binding-list {
+  display: grid;
+  max-height: 300px;
+  gap: 6px;
+  overflow: auto;
+  border: 1px solid rgba(33, 244, 255, 0.14);
+  background: rgba(0, 0, 0, 0.24);
+  padding: 7px;
+  scrollbar-color: var(--cyan) var(--ink);
+}
+
+.controller-binding {
+  display: grid;
+  grid-template-columns: minmax(44px, 0.45fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(247, 255, 232, 0.08);
+  background: rgba(13, 15, 25, 0.88);
+  padding: 6px;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.controller-binding > strong {
+  color: var(--foreground);
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.4rem;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.controller-binding.is-active > strong {
+  color: var(--lime);
+  text-shadow: 0 0 10px rgba(184, 255, 22, 0.6);
+}
+
+.controller-binding.is-active {
+  border-color: rgba(184, 255, 22, 0.74);
+  background: rgba(184, 255, 22, 0.075);
+}
+
+.controller-binding.is-active .control-map-button {
+  border-color: var(--lime);
+}
+
+.control-map-button,
+.control-reset-button {
+  min-width: 0;
+  min-height: 32px;
+  border: 1px solid rgba(33, 244, 255, 0.5);
+  background: rgba(5, 5, 10, 0.94);
+  color: var(--cyan);
+  cursor: pointer;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  text-align: left;
+  padding: 5px 7px;
+}
+
+.control-map-button span {
+  color: var(--muted);
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.31rem;
+  text-transform: uppercase;
+}
+
+.control-map-button b {
+  color: inherit;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.control-map-button:hover,
+.control-reset-button:hover {
+  border-color: var(--lime);
+  color: var(--lime);
+}
+
+.control-reset-button {
+  display: block;
+  width: 100%;
+  min-height: 34px;
+  margin: 0;
+  border: 1px solid rgba(255, 230, 109, 0.42);
+  background: rgba(255, 230, 109, 0.045);
+  color: var(--yellow);
+  cursor: pointer;
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.4rem;
+  text-transform: uppercase;
+}
+
+.control-reset-button:hover {
+  border-color: var(--yellow);
+  background: rgba(255, 230, 109, 0.11);
+}
+
 .save-slots {
   display: grid;
   gap: 12px;
@@ -1892,6 +2225,10 @@ h1 {
   .audio-deck,
   .pwa-panel {
     grid-template-columns: 1fr;
+  }
+
+  .controller-binding {
+    grid-template-columns: minmax(36px, 0.45fr) minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .volume-control {

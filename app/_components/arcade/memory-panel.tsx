@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useGamepadControls } from "../../_hooks/use-gamepad-controls";
 import { slugFor } from "../../_lib/games";
 import type { Game, GameMode, SaveSlot } from "../../_lib/types";
 
@@ -140,14 +141,48 @@ export function MemoryPanel({
   volume,
 }: MemoryPanelProps) {
   const [selectorOpen, setSelectorOpen] = useState(false);
+  const [keyboardCaptureAction, setKeyboardCaptureAction] = useState<string | null>(null);
   const terminalRef = useRef<HTMLOListElement>(null);
   const currentOption = MODE_BUTTONS[mode];
+  const {
+    activeMappings,
+    activeControlIds,
+    buttonLabel,
+    capturingAction,
+    controllerStatus,
+    resetMappings,
+    setKeyboardMapping,
+    startGamepadCapture,
+  } = useGamepadControls(mode, Boolean(selectedGame));
 
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [activityLines]);
+
+  useEffect(() => {
+    setKeyboardCaptureAction(null);
+  }, [mode]);
+
+  useEffect(() => {
+    if (!keyboardCaptureAction) {
+      return;
+    }
+
+    const captureKey = (event: KeyboardEvent) => {
+      if (!event.isTrusted) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      setKeyboardMapping(keyboardCaptureAction, event.code);
+      setKeyboardCaptureAction(null);
+    };
+
+    window.addEventListener("keydown", captureKey, true);
+    return () => window.removeEventListener("keydown", captureKey, true);
+  }, [keyboardCaptureAction, setKeyboardMapping]);
 
   return (
     <aside className="memory-panel" aria-label="Save data">
@@ -211,6 +246,78 @@ export function MemoryPanel({
           ))}
         </ol>
       </section>
+
+      <details className="controller-mapping">
+        <summary>
+          <span className="controller-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M7 8h10a4 4 0 0 1 3.8 5.2l-1.1 3.2a2 2 0 0 1-3.2.9L14 15h-4l-2.5 2.3a2 2 0 0 1-3.2-.9l-1.1-3.2A4 4 0 0 1 7 8Z" />
+              <path d="M7 10.5v4m-2-2h4m7-1h.01M18 13h.01" />
+            </svg>
+          </span>
+          <span className="controller-card-title">
+            <strong>controller setup</strong>
+            <small>keyboard + gamepad controls</small>
+          </span>
+          <span className="controller-card-toggle" aria-hidden="true" />
+        </summary>
+        <div className="controller-card-content">
+          <div className={`controller-device-card ${controllerStatus === "no controller connected" ? "" : "is-connected"}`}>
+            <span className="controller-device-indicator" aria-hidden="true" />
+            <span className="controller-device-info">
+              <small>controller status</small>
+              <strong>{controllerStatus}</strong>
+            </span>
+            <span className="controller-device-type">USB / BT</span>
+          </div>
+          <p className="controller-help">
+            Connect a USB or Bluetooth gamepad. Standard Xbox 360 layouts work automatically. Press a mapped input to test it, or select a binding to change it.
+          </p>
+          <div className={`controller-test-readout ${activeControlIds.length ? "is-active" : ""}`} role="status" aria-live="polite">
+            <span className="controller-test-icon" aria-hidden="true">{activeControlIds.length ? "✓" : "TEST"}</span>
+            <span className="controller-test-copy">
+              <small>{activeControlIds.length ? "input detected" : "live input test"}</small>
+              <strong>
+                {activeControlIds.length
+                  ? activeMappings.filter((binding) => activeControlIds.includes(binding.id)).map((binding) => binding.label).join(", ")
+                  : "Press a mapped key or controller button"}
+              </strong>
+            </span>
+          </div>
+          <div className="controller-binding-heading">
+            <span>control map</span>
+            <small>{activeMappings.length} inputs</small>
+          </div>
+          <div className="controller-binding-list">
+            {activeMappings.map((binding) => (
+              <div className={`controller-binding ${activeControlIds.includes(binding.id) ? "is-active" : ""}`} key={binding.id}>
+                <strong>{binding.label}</strong>
+                <button
+                  className="control-map-button"
+                  aria-label={`Change keyboard mapping for ${binding.label}`}
+                  onClick={() => setKeyboardCaptureAction((current) => (current === binding.id ? null : binding.id))}
+                  type="button"
+                >
+                  <span>keyboard</span>
+                  <b>{keyboardCaptureAction === binding.id ? "press key..." : binding.keyboardCode.replace("Arrow", "")}</b>
+                </button>
+                <button
+                  className="control-map-button gamepad-map-button"
+                  aria-label={`Change gamepad mapping for ${binding.label}`}
+                  onClick={() => startGamepadCapture(binding.id)}
+                  type="button"
+                >
+                  <span>gamepad</span>
+                  <b>{capturingAction === binding.id ? "press button..." : buttonLabel(binding.gamepadButton)}</b>
+                </button>
+              </div>
+            ))}
+          </div>
+          <button className="control-reset-button" onClick={resetMappings} type="button">
+            reset {currentOption.label} controls
+          </button>
+        </div>
+      </details>
 
       <div className="save-slots">
         {saveSlots.map((slot) => (

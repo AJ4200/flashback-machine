@@ -12,7 +12,7 @@ type CabinetProps = {
 };
 
 export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, selectedGame, stageRef }: CabinetProps) {
-  const engineName = mode === "flash" ? "Flash" : mode === "jsdos" ? "DOS" : mode === "sega" ? "SEGA" : mode.toUpperCase();
+  const engineName = mode === "flash" ? "Flash" : mode === "jsdos" ? "DOS" : mode === "sega" ? "SEGA" : mode === "ps2" ? "PS2" : mode.toUpperCase();
 
   return (
     <section className="cabinet">
@@ -21,7 +21,7 @@ export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, sel
           <span>{selectedGame?.title ?? "choose your game"}</span>
           <span>{selectedGame?.size ?? `${gameCount.toString().padStart(2, "0")} games`}</span>
         </div>
-        <div className={`screen ${mode === "jsdos" ? "screen-dos" : "screen-flash"}`}>
+        <div className={`screen ${mode === "jsdos" ? "screen-dos" : mode === "ps2" ? "screen-ps2" : "screen-flash"}`}>
           <div className="screen-content" ref={mountRef}>
             {!selectedGame ? (
               <div className="screen-welcome">
@@ -29,7 +29,7 @@ export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, sel
                 <div className="welcome-copy">
                   <span>no game loaded</span>
                   <strong>{gameCount > 0 ? `${gameCount} games online` : "scanning library"}</strong>
-                  <small>choose a cabinet from the wall to start playing</small>
+                  <small>{mode === "ps2" ? "PS2 emulation is experimental; choose a disc image to start" : "choose a cabinet from the wall to start playing"}</small>
                 </div>
                 <div className="welcome-prompt">
                   <span>ready</span>

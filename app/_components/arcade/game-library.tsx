@@ -15,7 +15,7 @@ type GameLibraryProps = {
 };
 
 export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery, isLoading, totalFiles, supportedCount, unsupportedFiles }: GameLibraryProps) {
-  const libraryName = mode === "flash" ? "Flash" : mode === "jsdos" ? "JS DOS" : mode === "sega" ? "Sega" : mode.toUpperCase();
+  const libraryName = mode === "flash" ? "Flash" : mode === "jsdos" ? "JS DOS" : mode === "sega" ? "Sega" : mode === "ps2" ? "PS2" : mode.toUpperCase();
   const searchPlaceholder = mode === "flash" ? "game title" : `${mode} title`;
 
   return (
@@ -49,6 +49,8 @@ export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGam
                 "Add MAME 2003-Plus compatible .zip, .7z or .chd ROMs to public/games/mame and list them in mamelist.json"
               ) : mode === "nes" ? (
                 "Add .nes, .fds, .unf or .unif ROMs to public/games/nes and list them in neslist.json"
+              ) : mode === "ps2" ? (
+                "Add PS2 .iso, .cso, .chd, .isz, .bin or .elf game images to public/games/ps2 and list them in ps2list.json"
               ) : mode === "sega" ? (
                 "Add Sega .md, .gen, .smd, .bin, .sms, .gg, .cue, .iso or .chd files to public/games/sega and list them in segalist.json"
               ) : (

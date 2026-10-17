@@ -69,6 +69,18 @@ const MODE_BUTTONS = {
     ),
     status: "beta",
   },
+  ps2: {
+    label: "ps2",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M5 8h14a3 3 0 0 1 2.8 4l-1.4 3.5a2 2 0 0 1-3.2.7l-2.1-1.7H8.9l-2.1 1.7a2 2 0 0 1-3.2-.7L2.2 12A3 3 0 0 1 5 8Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinejoin="round" />
+        <path d="M7 10v4m-2-2h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <circle cx="16" cy="11" r="1" fill="currentColor" />
+        <circle cx="18" cy="13" r="1" fill="currentColor" />
+      </svg>
+    ),
+    status: "new",
+  },
   sega: {
     label: "sega",
     icon: (

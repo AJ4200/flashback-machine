@@ -6,4 +6,7 @@ Each emulator has its own folder and catalog file. Add game files to the matchin
 - JS DOS: `public/games/jsdos/jsdoslist.json`
 - MAME: `public/games/mame/mamelist.json`
 - NES: `public/games/nes/neslist.json`
+- PlayStation 2: `public/games/ps2/ps2list.json`
 - Sega: `public/games/sega/segalist.json`
+
+PlayStation 2 games use the experimental Play! browser emulator. See `public/games/ps2/README.md` for supported file formats and compatibility notes.

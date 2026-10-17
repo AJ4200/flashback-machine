@@ -1,6 +1,6 @@
 # FlashBack Machine
 
-FlashBack Machine is an immersive retro browser arcade for classic Flash, DOS, MAME, NES, and Sega games. It uses Ruffle, js-dos, and bundled RetroArch WebAssembly cores inside a neon pixel-art interface with local save slots, fullscreen play, downloads, and PWA offline caching.
+FlashBack Machine is an immersive retro browser arcade for classic Flash, DOS, MAME, NES, PlayStation 2, and Sega games. It uses Ruffle, js-dos, and bundled WebAssembly emulators inside a neon pixel-art interface with local save slots, fullscreen play, downloads, and PWA offline caching.
 
 Made with love by aj4200.
 
@@ -9,6 +9,7 @@ Made with love by aj4200.
 - Ruffle-powered SWF playback from `public/games/flash`
 - js-dos playback from `public/games/jsdos`
 - NES playback with automatic fallback across the bundled Nestopia, FCEUmm, and QuickNES RetroArch cores
+- Experimental PlayStation 2 playback through the bundled Play! WebAssembly emulator
 - MAME playback with automatic fallback across the bundled MAME 2003-Plus, MAME 2003, and MAME 2000 RetroArch cores
 - Sega playback through the bundled Genesis Plus GX RetroArch core
 - Pixel arcade UI with boot splash, fake loader, CRT scanlines, neon colors, and transitions
@@ -65,6 +66,7 @@ public/games/flash/flashlist.json
 public/games/jsdos/jsdoslist.json
 public/games/mame/mamelist.json
 public/games/nes/neslist.json
+public/games/ps2/ps2list.json
 public/games/sega/segalist.json
 ```
 
@@ -86,10 +88,13 @@ public/games/flash/
 public/games/jsdos/
 public/games/mame/
 public/games/nes/
+public/games/ps2/
 public/games/sega/
 ```
 
 NES and MAME note: The player starts with the broad-compatibility core and retries another bundled core when it detects a ROM load error. Arcade ROM sets still need to match a core's supported game and ROM version; the fallback can help with version mismatches but cannot supply missing files or BIOS images.
+
+PS2 note: The experimental Play! browser emulator supports `.iso`, `.cso`, `.chd`, `.isz`, `.bin`, and `.elf` game images without a BIOS file. Game compatibility and performance vary, and larger images need enough browser memory. The bundled Play! runtime is under `public/emulators/ps2`, is sourced from [Play!](https://github.com/jpd002/Play-), and is distributed with its license.
 
 ## Offline PWA
 

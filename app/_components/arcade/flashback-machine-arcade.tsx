@@ -8,6 +8,7 @@ import { useGameCatalog } from "../../_hooks/use-game-catalog";
 import { useJsDosPlayer } from "../../_hooks/use-js-dos-player";
 import { useMamePlayer } from "../../_hooks/use-mame-player";
 import { useNesPlayer } from "../../_hooks/use-nes-player";
+import { usePs2Player } from "../../_hooks/use-ps2-player";
 import { usePwa } from "../../_hooks/use-pwa";
 import { useRufflePlayer } from "../../_hooks/use-ruffle-player";
 import { useSaveSlots } from "../../_hooks/use-save-slots";
@@ -61,6 +62,12 @@ export function FlashBackMachineArcade() {
     setNotice,
   });
   const { playerStatus: nesPlayerStatus, nesReady } = useNesPlayer({
+    mountRef,
+    reloadToken,
+    selectedGame,
+    setNotice,
+  });
+  const { playerStatus: ps2PlayerStatus, ready: ps2Ready } = usePs2Player({
     mountRef,
     reloadToken,
     selectedGame,
@@ -128,6 +135,8 @@ export function FlashBackMachineArcade() {
               ? mamePlayerStatus
               : mode === "sega"
               ? segaPlayerStatus
+              : mode === "ps2"
+              ? ps2PlayerStatus
               : nesPlayerStatus
           }
           ruffleReady={
@@ -139,6 +148,8 @@ export function FlashBackMachineArcade() {
               ? mameReady
               : mode === "sega"
               ? segaReady
+              : mode === "ps2"
+              ? ps2Ready
               : nesReady
           }
         />

@@ -13,6 +13,8 @@ export function Marquee({ mode, playerStatus, ruffleReady }: MarqueeProps) {
       ? "JSDOS DOS LIBRARY"
       : mode === "nes"
       ? "NES AUTO-DETECT CORE"
+      : mode === "ps2"
+      ? "PLAY! PLAYSTATION 2 CORE"
       : mode === "mame"
       ? "MAME AUTO-DETECT CORE"
       : mode === "sega"

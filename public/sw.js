@@ -13,6 +13,7 @@ const SHELL_ASSETS = [
   "/games/jsdos/jsdoslist.json",
   "/games/mame/mamelist.json",
   "/games/nes/neslist.json",
+  "/games/ps2/ps2list.json",
   "/games/sega/segalist.json",
   "/ruffle/ruffle.js",
   "/ruffle/core.ruffle.8700c6b0144208de9d1b.js",
@@ -33,6 +34,8 @@ const SHELL_ASSETS = [
   "/emulators/retroarch/quicknes_libretro.wasm",
   "/emulators/retroarch/nestopia_libretro.js",
   "/emulators/retroarch/nestopia_libretro.wasm",
+  "/emulators/ps2/Play.js",
+  "/emulators/ps2/Play.wasm",
 ];
 
 self.addEventListener("install", (event) => {

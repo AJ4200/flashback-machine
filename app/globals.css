@@ -772,6 +772,13 @@ h1 {
     #001319;
 }
 
+.screen-ps2 {
+  background:
+    repeating-linear-gradient(0deg, rgba(33, 244, 255, 0.06) 0 2px, transparent 2px 6px),
+    radial-gradient(circle at 50% 50%, rgba(33, 244, 255, 0.16), transparent 56%),
+    #001019;
+}
+
 .screen::after {
   position: absolute;
   inset: 0;

@@ -21,6 +21,8 @@ const RUNTIME_URLS = [
   "/emulators/retroarch/quicknes_libretro.wasm",
   "/emulators/retroarch/nestopia_libretro.js",
   "/emulators/retroarch/nestopia_libretro.wasm",
+  "/emulators/ps2/Play.js",
+  "/emulators/ps2/Play.wasm",
 ];
 
 export function usePwa(games: Game[], selectedGame?: Game, mode: GameMode = "flash") {

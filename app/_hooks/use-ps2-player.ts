@@ -204,7 +204,7 @@ export function usePs2Player({ mountRef, reloadToken, selectedGame, setNotice }:
         setNotice(`${selectedGame.title} inserted (Play! PS2)`);
       } catch (error) {
         console.error(error);
-        setPlayerStatus("PS2 runtime error");
+        setPlayerStatus(`PS2 runtime error: ${error instanceof Error ? error.message : String(error)}`);
         setNotice("PS2 could not load this disc image");
         if (runtime && moduleInstance.current === runtime) {
           moduleInstance.current = null;

@@ -1,7 +1,16 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { slugFor } from "../../_lib/games";
 import type { Game, GameMode, SaveSlot } from "../../_lib/types";
 
+export type ActivityLine = {
+  id: number;
+  time: string;
+  message: string;
+  level: "info" | "error";
+};
+
 type MemoryPanelProps = {
+  activityLines: ActivityLine[];
   cacheBusy: boolean;
   cacheLibrary: () => void;
   cacheSelectedGame: () => void;
@@ -32,6 +41,17 @@ const MODE_BUTTONS = {
       </svg>
     ),
     status: null,
+  },
+  gba: {
+    label: "game boy",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" strokeWidth="2" fill="none" />
+        <path d="M8 5h8M9 17h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="12" cy="19" r="1" fill="currentColor" />
+      </svg>
+    ),
+    status: "new",
   },
   jsdos: {
     label: "js dos",
@@ -93,9 +113,12 @@ const MODE_BUTTONS = {
     ),
     status: "new",
   },
-};
+} satisfies Record<GameMode, { label: string; icon: ReactNode; status: string | null }>;
+
+const MODE_ORDER: GameMode[] = ["flash", "gba", "jsdos", "mame", "nes", "ps2", "sega"];
 
 export function MemoryPanel({
+  activityLines,
   cacheBusy,
   cacheLibrary,
   cacheSelectedGame,
@@ -116,6 +139,16 @@ export function MemoryPanel({
   switchMode,
   volume,
 }: MemoryPanelProps) {
+  const [selectorOpen, setSelectorOpen] = useState(false);
+  const terminalRef = useRef<HTMLOListElement>(null);
+  const currentOption = MODE_BUTTONS[mode];
+
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [activityLines]);
+
   return (
     <aside className="memory-panel" aria-label="Save data">
       <div className="panel-header">
@@ -123,23 +156,61 @@ export function MemoryPanel({
         <strong>{notice}</strong>
       </div>
 
-      <div className="mode-toggle-row">
-        {Object.entries(MODE_BUTTONS).map(([modeKey, option]) => {
-          const modeName = modeKey as GameMode;
-          const isActive = mode === modeName;
-          const buttonClass = `arcade-button ${isActive ? "cyan" : ""}`.trim();
+      <div className="emulator-selector">
+        <button
+          aria-controls={selectorOpen ? "emulator-options" : undefined}
+          aria-expanded={selectorOpen}
+          aria-label={`Selected emulator: ${currentOption.label}. ${selectorOpen ? "Hide" : "Show"} emulator list`}
+          className="emulator-selector-current"
+          onClick={() => setSelectorOpen((open) => !open)}
+          type="button"
+        >
+          <span className="emulator-selector-caption">selected emulator / click to change</span>
+          <span className="mode-button-content">
+            <span className="mode-button-icon">{currentOption.icon}</span>
+            <strong className="mode-button-text">{currentOption.label}</strong>
+          </span>
+          <span className="emulator-selector-chevron" aria-hidden="true">{selectorOpen ? "-" : "+"}</span>
+        </button>
+        {selectorOpen ? (
+          <div className="emulator-options" id="emulator-options">
+            {MODE_ORDER.filter((optionMode) => optionMode !== mode).map((optionMode) => {
+              const option = MODE_BUTTONS[optionMode];
 
-          return (
-            <button key={modeName} className={buttonClass} onClick={() => switchMode(modeName)} type="button">
-              <span className="mode-button-content">
-                <span className="mode-button-icon">{option.icon}</span>
-                <span className="mode-button-text">{option.label}</span>
-              </span>
-              {option.status ? <span className={`mode-status-pill ${option.status}`}>{option.status}</span> : null}
-            </button>
-          );
-        })}
+              return (
+                <button
+                  key={optionMode}
+                  className="emulator-option"
+                  onClick={() => {
+                    setSelectorOpen(false);
+                    switchMode(optionMode);
+                  }}
+                  type="button"
+                >
+                  <span className="mode-button-icon">{option.icon}</span>
+                  <span>{option.label}</span>
+                  {option.status ? <small className={`mode-status-pill ${option.status}`}>{option.status}</small> : null}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
       </div>
+
+      <section className="live-terminal" aria-label="Emulator activity terminal">
+        <div className="terminal-heading">
+          <span>live terminal</span>
+          <strong>● {activityLines.length ? "connected" : "standby"}</strong>
+        </div>
+        <ol className="terminal-lines" ref={terminalRef} aria-live="polite" aria-relevant="additions text" role="log">
+          {activityLines.map((line) => (
+            <li className={`terminal-line ${line.level}`} key={line.id}>
+              <time>{line.time}</time>
+              <span>{line.message}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       <div className="save-slots">
         {saveSlots.map((slot) => (

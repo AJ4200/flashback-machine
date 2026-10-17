@@ -15,8 +15,8 @@ type GameLibraryProps = {
 };
 
 export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery, isLoading, totalFiles, supportedCount, unsupportedFiles }: GameLibraryProps) {
-  const libraryName = mode === "flash" ? "Flash" : mode === "jsdos" ? "JS DOS" : mode === "sega" ? "Sega" : mode === "ps2" ? "PS2" : mode.toUpperCase();
-  const searchPlaceholder = mode === "flash" ? "game title" : `${mode} title`;
+  const libraryName = mode === "flash" ? "Flash" : mode === "gba" ? "Game Boy" : mode === "jsdos" ? "JS DOS" : mode === "sega" ? "Sega" : mode === "ps2" ? "PS2" : mode.toUpperCase();
+  const searchPlaceholder = mode === "flash" ? "game title" : `${libraryName} title`;
 
   return (
     <aside className="library-panel" aria-label={`${libraryName} game library`}>
@@ -51,6 +51,8 @@ export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGam
                 "Add .nes, .fds, .unf or .unif ROMs to public/games/nes and list them in neslist.json"
               ) : mode === "ps2" ? (
                 "Add PS2 .iso, .cso, .chd, .isz, .bin or .elf game images to public/games/ps2 and list them in ps2list.json"
+              ) : mode === "gba" ? (
+                "Add Game Boy, Game Boy Color, or Game Boy Advance .gb, .gbc, or .gba ROMs to public/games/gba and list them in gbalist.json"
               ) : mode === "sega" ? (
                 "Add Sega .md, .gen, .smd, .bin, .sms, .gg, .cue, .iso or .chd files to public/games/sega and list them in segalist.json"
               ) : (

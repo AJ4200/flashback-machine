@@ -1,6 +1,7 @@
 import type { GameMode } from "./types";
 
 export const FLASH_CATALOG_PATH = "/games/flash/flashlist.json";
+export const GBA_CATALOG_PATH = "/games/gba/gbalist.json";
 export const JSDOS_CATALOG_PATH = "/games/jsdos/jsdoslist.json";
 export const MAME_CATALOG_PATH = "/games/mame/mamelist.json";
 export const NES_CATALOG_PATH = "/games/nes/neslist.json";
@@ -11,6 +12,8 @@ export const gameCatalogPath = (mode: GameMode) => {
   switch (mode) {
     case "flash":
       return FLASH_CATALOG_PATH;
+    case "gba":
+      return GBA_CATALOG_PATH;
     case "jsdos":
       return JSDOS_CATALOG_PATH;
     case "mame":
@@ -34,6 +37,8 @@ export const supportedGameExtensions = (mode: GameMode) => {
   switch (mode) {
     case "flash":
       return [/\.swf$/i];
+    case "gba":
+      return [/\.(gba|gbc|gb)$/i];
     case "jsdos":
       return [/\.jsdos$/i];
     case "mame":
@@ -52,7 +57,7 @@ export const isSupportedGameFile = (mode: GameMode, file: string) =>
 
 export const slugFor = (value: string) =>
   value
-    .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|md|gen|smd|bin|sms|gg|sg|cue|iso|chd|cso|isz|elf)$/i, "")
+    .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|md|gen|smd|bin|sms|gg|sg|cue|iso|chd|cso|isz|elf|gba|gbc|gb)$/i, "")
     .replace(/[^a-z0-9]+/gi, "-")
     .replace(/^-|-$/g, "")
     .toLowerCase();
@@ -67,6 +72,8 @@ export const titleFor = (file: string, mode: GameMode) => {
       ? /\.(zip|7z|chd)$/i
       : mode === "ps2"
       ? /\.(iso|cso|chd|isz|bin|elf)$/i
+      : mode === "gba"
+      ? /\.(gba|gbc|gb)$/i
       : mode === "sega"
       ? /\.(md|gen|smd|bin|sms|gg|sg|cue|iso|chd)$/i
       : /\.(nes|fds|unf|unif)$/i;

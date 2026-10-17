@@ -779,6 +779,13 @@ h1 {
     #001019;
 }
 
+.screen-gba {
+  background:
+    repeating-linear-gradient(0deg, rgba(184, 255, 22, 0.06) 0 2px, transparent 2px 6px),
+    radial-gradient(circle at 50% 50%, rgba(184, 255, 22, 0.16), transparent 56%),
+    #071208;
+}
+
 .screen::after {
   position: absolute;
   inset: 0;
@@ -1122,6 +1129,150 @@ h1 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 12px;
+}
+
+.emulator-selector {
+  display: grid;
+  gap: 8px;
+}
+
+.emulator-selector-current {
+  position: relative;
+  display: grid;
+  width: 100%;
+  gap: 8px;
+  border: 2px solid var(--cyan);
+  background:
+    linear-gradient(110deg, rgba(33, 244, 255, 0.14), rgba(184, 255, 22, 0.08)),
+    rgba(5, 5, 10, 0.9);
+  color: var(--foreground);
+  cursor: pointer;
+  padding: 10px 38px 10px 12px;
+  text-align: left;
+  box-shadow: 4px 4px 0 var(--magenta);
+}
+
+.emulator-selector-current:hover,
+.emulator-option:hover {
+  border-color: var(--lime);
+  background-color: rgba(184, 255, 22, 0.12);
+}
+
+.emulator-selector-caption {
+  color: var(--yellow);
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.45rem;
+  text-transform: uppercase;
+}
+
+.emulator-selector-current .mode-button-content {
+  color: var(--cyan);
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.emulator-selector-chevron {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  color: var(--lime);
+  font-family: var(--font-pixel), monospace;
+  font-size: 1rem;
+  transform: translateY(-50%);
+}
+
+.emulator-options {
+  display: grid;
+  max-height: 250px;
+  gap: 6px;
+  overflow: auto;
+  border: 2px solid rgba(33, 244, 255, 0.4);
+  background: rgba(5, 5, 10, 0.94);
+  padding: 8px;
+}
+
+.emulator-option {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(33, 244, 255, 0.24);
+  background: rgba(7, 7, 15, 0.92);
+  color: var(--foreground);
+  cursor: pointer;
+  padding: 8px 10px;
+  text-align: left;
+  text-transform: uppercase;
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.49rem;
+}
+
+.emulator-option > span:nth-child(2) {
+  flex: 1;
+}
+
+.live-terminal {
+  min-width: 0;
+  border: 2px solid rgba(184, 255, 22, 0.58);
+  background:
+    linear-gradient(180deg, rgba(184, 255, 22, 0.06), transparent 55%),
+    #020702;
+  box-shadow: inset 0 0 18px rgba(33, 244, 255, 0.08);
+}
+
+.terminal-heading {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid rgba(184, 255, 22, 0.32);
+  color: var(--lime);
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.44rem;
+  padding: 8px 10px;
+  text-transform: uppercase;
+}
+
+.terminal-heading strong {
+  color: var(--cyan);
+}
+
+.terminal-lines {
+  display: grid;
+  max-height: 190px;
+  gap: 6px;
+  overflow: auto;
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+  scrollbar-color: var(--lime) var(--ink);
+}
+
+.terminal-line {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  color: #b6e7b2;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.terminal-line time {
+  color: var(--cyan);
+  font-variant-numeric: tabular-nums;
+}
+
+.terminal-line.error {
+  color: #ff8c9e;
+}
+
+.terminal-line.error time {
+  color: var(--magenta);
 }
 
 .save-slots {
@@ -1468,6 +1619,62 @@ h1 {
   width: 28px;
   height: 24px;
   flex: 0 0 auto;
+}
+
+.screen-loading-overlay {
+  position: absolute;
+  z-index: 2;
+  inset: 12% 8%;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  border: 2px solid rgba(33, 244, 255, 0.72);
+  background: rgba(1, 5, 10, 0.91);
+  box-shadow: inset 0 0 34px rgba(33, 244, 255, 0.12), 0 0 30px rgba(33, 244, 255, 0.14);
+  color: var(--foreground);
+  padding: clamp(16px, 4vw, 34px);
+  text-align: center;
+}
+
+.screen-loading-overlay strong {
+  color: var(--lime);
+  font-family: var(--font-pixel), monospace;
+  font-size: clamp(0.62rem, 1.3vw, 0.95rem);
+  letter-spacing: 0.08em;
+}
+
+.screen-loading-overlay > span:not(.spinner):not(.screen-loading-error) {
+  max-width: 100%;
+  color: var(--cyan);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+  overflow-wrap: anywhere;
+}
+
+.screen-loading-overlay small {
+  color: var(--yellow);
+  font-size: 0.9rem;
+}
+
+.screen-loading-overlay.has-error {
+  border-color: var(--magenta);
+  box-shadow: inset 0 0 34px rgba(255, 43, 214, 0.12), 0 0 30px rgba(255, 43, 214, 0.14);
+}
+
+.screen-loading-overlay.has-error strong {
+  color: #ff8c9e;
+}
+
+.screen-loading-error {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 2px solid var(--magenta);
+  color: var(--magenta);
+  font-family: var(--font-pixel), monospace;
+  font-size: 1.2rem;
 }
 
 .pixel-heart::before {

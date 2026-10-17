@@ -7,12 +7,14 @@ type CabinetProps = {
   mountRef: RefObject<HTMLDivElement | null>;
   onFullscreen: () => void;
   onReload: () => void;
+  playerStatus: string;
   selectedGame?: Game;
   stageRef: RefObject<HTMLDivElement | null>;
 };
 
-export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, selectedGame, stageRef }: CabinetProps) {
-  const engineName = mode === "flash" ? "Flash" : mode === "jsdos" ? "DOS" : mode === "sega" ? "SEGA" : mode === "ps2" ? "PS2" : mode.toUpperCase();
+export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, playerStatus, selectedGame, stageRef }: CabinetProps) {
+  const engineName = mode === "flash" ? "Flash" : mode === "gba" ? "Game Boy" : mode === "jsdos" ? "DOS" : mode === "sega" ? "SEGA" : mode === "ps2" ? "PS2" : mode.toUpperCase();
+  const isLoadingError = /error|failed|unavailable|blocked/i.test(playerStatus);
 
   return (
     <section className="cabinet">
@@ -21,7 +23,7 @@ export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, sel
           <span>{selectedGame?.title ?? "choose your game"}</span>
           <span>{selectedGame?.size ?? `${gameCount.toString().padStart(2, "0")} games`}</span>
         </div>
-        <div className={`screen ${mode === "jsdos" ? "screen-dos" : mode === "ps2" ? "screen-ps2" : "screen-flash"}`}>
+        <div className={`screen ${mode === "jsdos" ? "screen-dos" : mode === "ps2" ? "screen-ps2" : mode === "gba" ? "screen-gba" : "screen-flash"}`}>
           <div className="screen-content" ref={mountRef}>
             {!selectedGame ? (
               <div className="screen-welcome">
@@ -38,10 +40,18 @@ export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, sel
               </div>
             ) : (
               <div className="screen-standby">
-                <span>{mode === "flash" ? "LOAD FLASH GAME" : `LOAD ${engineName} ROM`}</span>
+                <span>{mode === "flash" ? "LOAD FLASH GAME" : mode === "gba" ? "LOAD GAME BOY ROM" : `LOAD ${engineName} ROM`}</span>
               </div>
             )}
           </div>
+          {selectedGame && playerStatus !== "live" ? (
+            <div className={`screen-loading-overlay ${isLoadingError ? "has-error" : ""}`} aria-live="polite">
+              {isLoadingError ? <span className="screen-loading-error" aria-hidden="true">!</span> : <span className="spinner" aria-hidden="true" />}
+              <strong>{isLoadingError ? "EMULATOR NEEDS ATTENTION" : "LOADING GAME"}</strong>
+              <span>{playerStatus === "waiting for game" ? "Waiting for emulator startup" : playerStatus}</span>
+              {isLoadingError ? <small>Open the live terminal for the full startup trace.</small> : null}
+            </div>
+          ) : null}
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAudioControls } from "../../_hooks/use-audio-controls";
 import { useBootSequence } from "../../_hooks/use-boot-sequence";
+import { useGbaPlayer } from "../../_hooks/use-gba-player";
 import { useGameCatalog } from "../../_hooks/use-game-catalog";
 import { useJsDosPlayer } from "../../_hooks/use-js-dos-player";
 import { useMamePlayer } from "../../_hooks/use-mame-player";
@@ -20,7 +21,7 @@ import { Cabinet } from "./cabinet";
 import { GameLibrary } from "./game-library";
 import { LoveBadge } from "./love-badge";
 import { Marquee } from "./marquee";
-import { MemoryPanel } from "./memory-panel";
+import { MemoryPanel, type ActivityLine } from "./memory-panel";
 import { OfflinePrompt } from "./offline-prompt";
 
 export function FlashBackMachineArcade() {
@@ -28,6 +29,8 @@ export function FlashBackMachineArcade() {
   const [offlinePromptDismissed, setOfflinePromptDismissed] = useState(true);
   const [reloadToken, setReloadToken] = useState(0);
   const [mode, setMode] = useState<GameMode>("flash");
+  const [activityLines, setActivityLines] = useState<ActivityLine[]>([]);
+  const activityIdRef = useRef(0);
   const stageRef = useRef<HTMLDivElement>(null);
   const mountRef = useRef<HTMLDivElement>(null);
 
@@ -42,6 +45,12 @@ export function FlashBackMachineArcade() {
   const { filteredGames, games, loading, totalFiles, supportedCount, unsupportedFiles, query, selectedGame, selectGame, setQuery } = useGameCatalog({ mode, onCatalogError });
   const { bootProgress, bootReady, bootStarted, startBoot } = useBootSequence();
   const { effectiveVolume, muted, setVolume, toggleMuted, volume } = useAudioControls();
+  const { playerStatus: gbaPlayerStatus, ready: gbaReady } = useGbaPlayer({
+    mountRef,
+    reloadToken,
+    selectedGame,
+    setNotice,
+  });
   const { playerStatus: flashPlayerStatus, ruffleReady, setPlayerStatus: setFlashPlayerStatus, setRuffleReady } = useRufflePlayer({
     effectiveVolume,
     mountRef,
@@ -85,10 +94,88 @@ export function FlashBackMachineArcade() {
     selectedGame,
     setNotice,
   });
+  const activePlayerStatus =
+    mode === "flash"
+      ? flashPlayerStatus
+      : mode === "gba"
+      ? gbaPlayerStatus
+      : mode === "jsdos"
+      ? dosPlayerStatus
+      : mode === "mame"
+      ? mamePlayerStatus
+      : mode === "nes"
+      ? nesPlayerStatus
+      : mode === "ps2"
+      ? ps2PlayerStatus
+      : segaPlayerStatus;
+  const activeRuntimeReady =
+    mode === "flash"
+      ? ruffleReady
+      : mode === "gba"
+      ? gbaReady
+      : mode === "jsdos"
+      ? dosReady
+      : mode === "mame"
+      ? mameReady
+      : mode === "nes"
+      ? nesReady
+      : mode === "ps2"
+      ? ps2Ready
+      : segaReady;
+
+  const appendActivity = useCallback((message: string, level: ActivityLine["level"] = "info") => {
+    const time = new Date().toLocaleTimeString(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+
+    setActivityLines((lines) => {
+      if (lines[lines.length - 1]?.message === message) {
+        return lines;
+      }
+
+      return [...lines.slice(-39), { id: activityIdRef.current++, time, message, level }];
+    });
+  }, []);
 
   useEffect(() => {
     setOfflinePromptDismissed(window.localStorage.getItem(OFFLINE_PROMPT_DISMISSED_KEY) === "true");
   }, []);
+
+  useEffect(() => {
+    appendActivity(`${mode.toUpperCase()} emulator selected`);
+  }, [appendActivity, mode]);
+
+  useEffect(() => {
+    if (loading) {
+      appendActivity(`Scanning ${mode.toUpperCase()} game catalog`);
+    } else {
+      appendActivity(`${mode.toUpperCase()} catalog ready (${games.length} games)`);
+    }
+  }, [appendActivity, games.length, loading, mode]);
+
+  useEffect(() => {
+    if (selectedGame) {
+      appendActivity(`Selected game: ${selectedGame.title}`);
+    }
+  }, [appendActivity, selectedGame]);
+
+  useEffect(() => {
+    if (selectedGame && activePlayerStatus !== "waiting for game") {
+      appendActivity(
+        `${mode.toUpperCase()} core: ${activePlayerStatus}`,
+        /error|failed|unavailable|blocked/i.test(activePlayerStatus) ? "error" : "info",
+      );
+    }
+  }, [activePlayerStatus, appendActivity, mode, selectedGame]);
+
+  useEffect(() => {
+    if (notice !== "memory card ready") {
+      appendActivity(notice, /error|failed|missing|could not/i.test(notice) ? "error" : "info");
+    }
+  }, [appendActivity, notice]);
 
   const selectGameAndReload = (file: string) => {
     selectGame(file);
@@ -126,32 +213,8 @@ export function FlashBackMachineArcade() {
         <div className="crt-noise" aria-hidden="true" />
         <Marquee
           mode={mode}
-          playerStatus={
-            mode === "flash"
-              ? flashPlayerStatus
-              : mode === "jsdos"
-              ? dosPlayerStatus
-              : mode === "mame"
-              ? mamePlayerStatus
-              : mode === "sega"
-              ? segaPlayerStatus
-              : mode === "ps2"
-              ? ps2PlayerStatus
-              : nesPlayerStatus
-          }
-          ruffleReady={
-            mode === "flash"
-              ? ruffleReady
-              : mode === "jsdos"
-              ? dosReady
-              : mode === "mame"
-              ? mameReady
-              : mode === "sega"
-              ? segaReady
-              : mode === "ps2"
-              ? ps2Ready
-              : nesReady
-          }
+          playerStatus={activePlayerStatus}
+          ruffleReady={activeRuntimeReady}
         />
 
         <section className="arcade-grid">
@@ -174,10 +237,12 @@ export function FlashBackMachineArcade() {
             mountRef={mountRef}
             onFullscreen={enterFullscreen}
             onReload={reloadGame}
+            playerStatus={activePlayerStatus}
             selectedGame={selectedGame}
             stageRef={stageRef}
           />
           <MemoryPanel
+            activityLines={activityLines}
             cacheBusy={cacheBusy}
             cacheLibrary={cacheLibrary}
             cacheSelectedGame={cacheSelectedGame}

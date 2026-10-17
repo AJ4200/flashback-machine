@@ -7,6 +7,8 @@ import type { BeforeInstallPromptEvent, Game, GameMode } from "../_lib/types";
 
 const RUNTIME_URLS = [
   "/ruffle/ruffle.js",
+  "/emulators/retroarch/mgba_libretro.js",
+  "/emulators/retroarch/mgba_libretro.wasm",
   "/emulators/retroarch/genesis_plus_gx_libretro.js",
   "/emulators/retroarch/genesis_plus_gx_libretro.wasm",
   "/emulators/retroarch/mame2000_libretro.js",

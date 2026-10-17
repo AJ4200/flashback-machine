@@ -83,8 +83,8 @@ export function useRufflePlayer({ effectiveVolume, mountRef, reloadToken, select
         setPlayerStatus("live");
         setNotice(`${selectedGame.title} inserted`);
       })
-      .catch(() => {
-        setPlayerStatus("cartridge error");
+      .catch((error: unknown) => {
+        setPlayerStatus(`cartridge error: ${error instanceof Error ? error.message : String(error)}`);
         setNotice("ruffle could not load this swf");
       });
 

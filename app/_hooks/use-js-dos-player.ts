@@ -29,8 +29,12 @@ export function useJsDosPlayer({ mountRef, reloadToken, selectedGame, setNotice 
       try {
         await import("js-dos/dist/js-dos.js");
         setDosReady(Boolean(window.Dos));
-      } catch {
+        if (!window.Dos) {
+          setPlayerStatus("DOS runtime error: js-dos API unavailable");
+        }
+      } catch (error) {
         setDosReady(false);
+        setPlayerStatus(`DOS runtime error: ${error instanceof Error ? error.message : String(error)}`);
       }
     };
 
@@ -67,8 +71,8 @@ export function useJsDosPlayer({ mountRef, reloadToken, selectedGame, setNotice 
       window.Dos?.(host, options);
       setPlayerStatus("live");
       setNotice(`${selectedGame.title} booted`);
-    } catch {
-      setPlayerStatus("dos bundle error");
+    } catch (error) {
+      setPlayerStatus(`DOS bundle error: ${error instanceof Error ? error.message : String(error)}`);
       setNotice("js dos could not load this bundle");
     }
 

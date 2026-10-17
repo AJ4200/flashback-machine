@@ -19,6 +19,7 @@ const CONTENT_ROOT = "/home/web_user/retroarch/userdata/content";
 function coreLabel(core: string) {
   const labels: Record<string, string> = {
     fceumm: "FCEUmm",
+    mgba: "mGBA",
     mame2000: "MAME 2000",
     mame2003: "MAME 2003",
     mame2003_plus: "MAME 2003-Plus",
@@ -87,6 +88,7 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
       try {
         const contentPath = `${CONTENT_ROOT}/${selectedGame.file}`;
         setReady(false);
+        setPlayerStatus(`fetching ${selectedGame.file}`);
         const romResponse = await fetch(selectedGame.path);
         if (!romResponse.ok) {
           throw new Error(`failed to fetch ${selectedGame.file}`);
@@ -96,6 +98,7 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
         if (cancelled) {
           return;
         }
+        setPlayerStatus(`staged ${selectedGame.file} (${Math.max(1, Math.round(romData.byteLength / 1024))} KB)`);
 
         const cores = typeof core === "string" ? [core] : core;
         const failures: string[] = [];
@@ -142,6 +145,7 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
 
           try {
             const createCore = await loadCore(currentCore);
+            setPlayerStatus(`initializing ${coreLabel(currentCore)}`);
             emulator = await createCore(Module);
             moduleInstance.current = emulator;
 
@@ -166,6 +170,7 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
             if (typeof emulator.callMain !== "function") {
               throw new Error(`${coreLabel(currentCore)} runtime entry point unavailable`);
             }
+            setPlayerStatus(`starting ${selectedGame.title}`);
             emulator.callMain(Module.arguments);
 
             await new Promise<void>((resolve) => window.setTimeout(resolve, 300));
@@ -193,17 +198,19 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
               moduleInstance.current = null;
             }
 
-            failures.push(`${coreLabel(currentCore)}: ${error instanceof Error ? error.message : String(error)}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            failures.push(`${coreLabel(currentCore)}: ${errorMessage}`);
             if (coreIndex === cores.length - 1) {
               throw new Error(failures.join("; "));
             }
 
+            setPlayerStatus(`${coreLabel(currentCore)} failed; trying another core`);
             console.warn(`${coreLabel(currentCore)} could not load ${selectedGame.file}; trying another core.`);
           }
         }
       } catch (error) {
         console.error(error);
-        setPlayerStatus(`${label} runtime error`);
+        setPlayerStatus(`${label} runtime error: ${error instanceof Error ? error.message : String(error)}`);
         setNotice(`${label.toUpperCase()} could not load this rom`);
       }
     };

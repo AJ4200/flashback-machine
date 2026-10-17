@@ -11,6 +11,8 @@ export function Marquee({ mode, playerStatus, ruffleReady }: MarqueeProps) {
   const modeTag =
     mode === "jsdos"
       ? "JSDOS DOS LIBRARY"
+      : mode === "gba"
+      ? "GAME BOY · mGBA CORE"
       : mode === "nes"
       ? "NES AUTO-DETECT CORE"
       : mode === "ps2"

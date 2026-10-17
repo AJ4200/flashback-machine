@@ -1,12 +1,13 @@
 # FlashBack Machine
 
-FlashBack Machine is an immersive retro browser arcade for classic Flash, DOS, MAME, NES, PlayStation 2, and Sega games. It uses Ruffle, js-dos, and bundled WebAssembly emulators inside a neon pixel-art interface with local save slots, fullscreen play, downloads, and PWA offline caching.
+FlashBack Machine is an immersive retro browser arcade for classic Flash, DOS, Game Boy, MAME, NES, PlayStation 2, and Sega games. It uses Ruffle, js-dos, and bundled WebAssembly emulators inside a neon pixel-art interface with local save slots, fullscreen play, downloads, and PWA offline caching.
 
 Made with love by aj4200.
 
 ## Features
 
 - Ruffle-powered SWF playback from `public/games/flash`
+- Game Boy, Game Boy Color, and Game Boy Advance playback through the bundled mGBA RetroArch core
 - js-dos playback from `public/games/jsdos`
 - NES playback with automatic fallback across the bundled Nestopia, FCEUmm, and QuickNES RetroArch cores
 - Experimental PlayStation 2 playback through the bundled Play! WebAssembly emulator
@@ -14,6 +15,7 @@ Made with love by aj4200.
 - Sega playback through the bundled Genesis Plus GX RetroArch core
 - Pixel arcade UI with boot splash, fake loader, CRT scanlines, neon colors, and transitions
 - Searchable game cabinet generated from each emulator catalog
+- Collapsible emulator selector, live startup terminal, and in-screen loading/error feedback
 - Fullscreen cabinet mode
 - Download button for the selected game file
 - Three manual save-data slots for browser-backed save data
@@ -63,6 +65,7 @@ Each emulator has a game folder and a JSON catalog. Put files in the matching fo
 
 ```text
 public/games/flash/flashlist.json
+public/games/gba/gbalist.json
 public/games/jsdos/jsdoslist.json
 public/games/mame/mamelist.json
 public/games/nes/neslist.json
@@ -85,6 +88,7 @@ Supported game folders:
 
 ```text
 public/games/flash/
+public/games/gba/
 public/games/jsdos/
 public/games/mame/
 public/games/nes/
@@ -96,6 +100,8 @@ NES and MAME note: The player starts with the broad-compatibility core and retri
 
 PS2 note: The experimental Play! browser emulator supports `.iso`, `.cso`, `.chd`, `.isz`, `.bin`, and `.elf` game images without a BIOS file. Game compatibility and performance vary, and larger images need enough browser memory. The bundled Play! runtime is under `public/emulators/ps2`, is sourced from [Play!](https://github.com/jpd002/Play-), and is distributed with its license.
 
+Game Boy note: The bundled mGBA core supports `.gb`, `.gbc`, and `.gba` ROMs. The runtime files and mGBA license are in `public/emulators/retroarch`.
+
 ## Offline PWA
 
 FlashBack Machine includes:
@@ -105,6 +111,7 @@ FlashBack Machine includes:
 - `public/sw.js` for offline caching
 - Local Ruffle files in `public/ruffle`
 - Local RetroArch cores in `public/emulators/retroarch`
+- The mGBA core is cached with the other emulator runtimes for offline use
 
 When the app loads, it registers the service worker and caches the app shell, manifest, icons, catalogs, Ruffle files, and RetroArch core files.
 

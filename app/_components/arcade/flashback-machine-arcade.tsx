@@ -14,8 +14,9 @@ import { usePwa } from "../../_hooks/use-pwa";
 import { useRufflePlayer } from "../../_hooks/use-ruffle-player";
 import { useSaveSlots } from "../../_hooks/use-save-slots";
 import { useSegaPlayer } from "../../_hooks/use-sega-player";
+import { formatBytes, isSupportedGameFile, titleFor } from "../../_lib/games";
 import { OFFLINE_PROMPT_DISMISSED_KEY } from "../../_lib/constants";
-import type { GameMode } from "../../_lib/types";
+import type { Game, GameMode } from "../../_lib/types";
 import { BootOverlay } from "./boot-overlay";
 import { Cabinet } from "./cabinet";
 import { GameLibrary } from "./game-library";
@@ -30,6 +31,7 @@ export function FlashBackMachineArcade() {
   const [reloadToken, setReloadToken] = useState(0);
   const [mode, setMode] = useState<GameMode>("flash");
   const [activityLines, setActivityLines] = useState<ActivityLine[]>([]);
+  const [localGame, setLocalGame] = useState<Game>();
   const activityIdRef = useRef(0);
   const stageRef = useRef<HTMLDivElement>(null);
   const mountRef = useRef<HTMLDivElement>(null);
@@ -42,7 +44,8 @@ export function FlashBackMachineArcade() {
     setNotice("game catalog missing");
   }, []);
 
-  const { filteredGames, games, loading, totalFiles, supportedCount, unsupportedFiles, query, selectedGame, selectGame, setQuery } = useGameCatalog({ mode, onCatalogError });
+  const { filteredGames, games, loading, totalFiles, supportedCount, unsupportedFiles, query, selectedGame: catalogSelectedGame, selectGame, setQuery } = useGameCatalog({ mode, onCatalogError });
+  const selectedGame = localGame?.mode === mode ? localGame : catalogSelectedGame;
   const { bootProgress, bootReady, bootStarted, startBoot } = useBootSequence();
   const { effectiveVolume, muted, setVolume, toggleMuted, volume } = useAudioControls();
   const { playerStatus: gbaPlayerStatus, ready: gbaReady } = useGbaPlayer({
@@ -151,6 +154,15 @@ export function FlashBackMachineArcade() {
     setOfflinePromptDismissed(window.localStorage.getItem(OFFLINE_PROMPT_DISMISSED_KEY) === "true");
   }, []);
 
+  useEffect(
+    () => () => {
+      if (localGame?.path.startsWith("blob:")) {
+        URL.revokeObjectURL(localGame.path);
+      }
+    },
+    [localGame],
+  );
+
   useEffect(() => {
     appendActivity(`${mode.toUpperCase()} emulator selected`);
   }, [appendActivity, mode]);
@@ -185,11 +197,33 @@ export function FlashBackMachineArcade() {
   }, [appendActivity, notice]);
 
   const selectGameAndReload = (file: string) => {
+    setLocalGame(undefined);
     selectGame(file);
     reloadGame();
   };
 
+  const loadLocalGame = (file: File) => {
+    if (!isSupportedGameFile(mode, file.name)) {
+      setNotice(`${file.name} is not a supported ${mode.toUpperCase()} file`);
+      return;
+    }
+
+    const path = URL.createObjectURL(file);
+    setLocalGame({
+      file: file.name,
+      title: titleFor(file.name, mode),
+      path,
+      flavor: "LOCAL FILE",
+      mode,
+      size: formatBytes(file.size),
+    });
+    selectGame("");
+    reloadGame();
+    setNotice(`${file.name} loaded from your device`);
+  };
+
   const switchMode = (nextMode: GameMode) => {
+    setLocalGame(undefined);
     setMode(nextMode);
     setNotice(`${nextMode.toUpperCase()} deck armed`);
   };
@@ -257,10 +291,14 @@ export function FlashBackMachineArcade() {
             clearSlot={clearSlot}
             gameCount={games.length}
             installPwa={installPwa}
+            isLocalGame={Boolean(selectedGame && localGame === selectedGame)}
             loadSlot={loadSlot}
+            localRomName={localGame?.mode === mode ? localGame.file : undefined}
             mode={mode}
+            mountRef={mountRef}
             muted={muted}
             notice={notice}
+            onLoadLocalFile={loadLocalGame}
             onToggleMuted={toggleMuted}
             onVolumeChange={setVolume}
             pwaStatus={pwaStatus}

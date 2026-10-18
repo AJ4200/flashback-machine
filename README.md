@@ -17,6 +17,7 @@ Made with love by aj4200.
 - Searchable game cabinet generated from each emulator catalog
 - Collapsible emulator selector, live startup terminal, and in-screen loading/error feedback
 - Per-emulator keyboard and Gamepad API mappings with plug-and-play standard-layout Xbox 360 controller defaults
+- Load supported game files directly from your device without adding them to the hosted catalog
 - Fullscreen cabinet mode
 - Download button for the selected game file
 - Three manual save-data slots for browser-backed save data
@@ -103,7 +104,9 @@ PS2 note: The experimental Play! browser emulator supports `.iso`, `.cso`, `.chd
 
 Game Boy note: The bundled mGBA core supports `.gb`, `.gbc`, and `.gba` ROMs. The runtime files and mGBA license are in `public/emulators/retroarch`.
 
-Controller note: Open `controller setup` in the right-side panel to see connected gamepads, remap keyboard keys or gamepad buttons for the selected emulator, and restore that emulator's defaults. Standard-layout Xbox 360 USB controllers use the preset mapping; other Gamepad API controllers can be remapped. The left stick and D-pad both control directions. Custom mappings are saved in this browser.
+Controller note: Open `controller setup` in the right-side memory panel to see connected gamepads, remap keyboard keys or gamepad buttons for the selected emulator, and restore that emulator's defaults. Standard-layout Xbox 360 USB controllers use the preset mapping; other Gamepad API controllers can be remapped. The left stick and D-pad both control directions. Gamepad inputs are forwarded to the active player surface rather than activating browser controls. Custom mappings are saved in this browser.
+
+Local file note: Use `load local file` above the memory panel to load a game from your device. Supported extensions follow the active emulator's catalog formats: Flash `.swf`; Game Boy `.gb`, `.gbc`, `.gba`; JS-DOS `.jsdos`; MAME `.zip`, `.7z`, `.chd`; NES `.nes`, `.fds`, `.unf`, `.unif`; PS2 `.iso`, `.cso`, `.chd`, `.isz`, `.bin`, `.elf`; and SEGA `.md`, `.gen`, `.smd`, `.bin`, `.sms`, `.gg`, `.sg`, `.cue`, `.iso`, `.chd`. Files are loaded in your browser and are not uploaded to the server or retained after the page is closed.
 
 ## Offline PWA
 

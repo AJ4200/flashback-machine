@@ -13,3 +13,5 @@ Each emulator has its own folder and catalog file. Add game files to the matchin
 PlayStation 2 games use the experimental Play! browser emulator. See `public/games/ps2/README.md` for supported file formats and compatibility notes.
 
 Game Boy, Game Boy Color, and Game Boy Advance games use the mGBA core. Add `.gb`, `.gbc`, or `.gba` ROMs to `public/games/gba` and list their exact filenames in `gbalist.json`.
+
+Alternatively, use the arcade's `load local file` control to open a supported game file from your device in the browser. Local files are not uploaded or added to these catalogs.

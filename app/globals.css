@@ -31,6 +31,12 @@
     scrollbar-color: var(--magenta) var(--ink);
     scrollbar-width: auto;
   }
+
+  .library-panel,
+  .library-panel .game-list {
+    scrollbar-color: var(--cyan) var(--ink);
+    scrollbar-width: auto;
+  }
 }
 
 /* Neon arcade scrollbar: the page and every nested scroll area share one cabinet rail. */
@@ -119,6 +125,71 @@
   background:
     linear-gradient(45deg, transparent 42%, var(--magenta) 42% 58%, transparent 58%),
     var(--ink);
+}
+
+.library-panel,
+.library-panel .game-list {
+  scrollbar-color: var(--cyan) var(--ink);
+  scrollbar-width: auto;
+  scrollbar-gutter: stable;
+}
+
+.library-panel::-webkit-scrollbar,
+.library-panel .game-list::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+.library-panel::-webkit-scrollbar-track,
+.library-panel .game-list::-webkit-scrollbar-track {
+  border: 2px solid var(--cyan);
+  background:
+    repeating-linear-gradient(135deg, rgba(33, 244, 255, 0.14) 0 3px, transparent 3px 7px),
+    var(--ink);
+  box-shadow: inset 0 0 0 2px rgba(255, 43, 214, 0.28);
+}
+
+.library-panel::-webkit-scrollbar-thumb,
+.library-panel .game-list::-webkit-scrollbar-thumb {
+  min-width: 38px;
+  min-height: 38px;
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  background:
+    linear-gradient(90deg, transparent 42%, rgba(5, 5, 10, 0.7) 42% 58%, transparent 58%),
+    linear-gradient(0deg, transparent 42%, rgba(5, 5, 10, 0.7) 42% 58%, transparent 58%),
+    linear-gradient(135deg, var(--lime), var(--magenta));
+  box-shadow: inset 0 0 0 2px var(--yellow);
+}
+
+.library-panel::-webkit-scrollbar-thumb:hover,
+.library-panel .game-list::-webkit-scrollbar-thumb:hover {
+  background:
+    linear-gradient(90deg, transparent 42%, rgba(5, 5, 10, 0.7) 42% 58%, transparent 58%),
+    linear-gradient(0deg, transparent 42%, rgba(5, 5, 10, 0.7) 42% 58%, transparent 58%),
+    linear-gradient(135deg, var(--cyan), var(--lime));
+}
+
+.library-panel::-webkit-scrollbar-button:single-button,
+.library-panel .game-list::-webkit-scrollbar-button:single-button {
+  display: block;
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+  border: 2px solid var(--magenta);
+  background-color: var(--ink);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 12px 12px;
+}
+
+.library-panel::-webkit-scrollbar-button:single-button:vertical:decrement,
+.library-panel .game-list::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23b8ff16' d='M8 3l6 8H2z'/%3E%3C/svg%3E");
+}
+
+.library-panel::-webkit-scrollbar-button:single-button:vertical:increment,
+.library-panel .game-list::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23b8ff16' d='M2 5h12l-6 8z'/%3E%3C/svg%3E");
 }
 
 html {
@@ -317,11 +388,25 @@ h1 {
   padding: 14px;
 }
 
-@media (min-width: 1181px) {
+@media (min-width: 821px) {
+  .arcade-grid {
+    grid-template-rows: minmax(calc(100vh + 120px), auto);
+  }
+
   .library-panel,
-  .memory-panel {
+  .memory-column,
+  .cabinet {
     position: sticky;
-    top: 18px;
+    top: 0;
+    align-self: start;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+  }
+
+  .cabinet .screen-bezel {
+    height: min(clamp(520px, 70vh, 790px), calc(100vh - 150px));
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr);
   }
 }
 
@@ -335,6 +420,18 @@ h1 {
 
 .memory-panel {
   order: 3;
+}
+
+.memory-column {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 12px;
+  order: 3;
+}
+
+.memory-panel {
+  min-width: 0;
 }
 
 .panel-header {
@@ -387,7 +484,6 @@ h1 {
   gap: 8px;
   overflow: auto;
   padding-right: 4px;
-  scrollbar-color: var(--magenta) var(--ink);
 }
 
 .game-list-empty {
@@ -419,18 +515,46 @@ h1 {
 }
 
 .spinner {
+  position: relative;
   width: 34px;
   height: 34px;
-  border: 4px solid rgba(255, 43, 214, 0.16);
-  border-top-color: rgba(33, 244, 255, 0.9);
+  border: 3px solid rgba(255, 43, 214, 0.28);
   border-radius: 0;
-  animation: spinner-rotate 0.85s linear infinite;
   box-shadow: 0 0 18px rgba(33, 244, 255, 0.14);
 }
 
-@keyframes spinner-rotate {
-  to {
-    transform: rotate(360deg);
+.spinner::before {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 9px;
+  height: 9px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px rgba(33, 244, 255, 0.9);
+  content: "";
+  animation: spinner-snake 1.6s linear infinite;
+}
+
+@keyframes spinner-snake {
+  0%,
+  100% {
+    top: -4px;
+    left: -4px;
+  }
+
+  25% {
+    top: -4px;
+    left: calc(100% - 5px);
+  }
+
+  50% {
+    top: calc(100% - 5px);
+    left: calc(100% - 5px);
+  }
+
+  75% {
+    top: calc(100% - 5px);
+    left: -4px;
   }
 }
 
@@ -1136,6 +1260,15 @@ h1 {
   gap: 8px;
 }
 
+.emulator-tools {
+  display: grid;
+  gap: 8px;
+  border: 2px solid rgba(255, 230, 109, 0.64);
+  background: linear-gradient(135deg, rgba(255, 230, 109, 0.08), rgba(255, 43, 214, 0.06)), rgba(5, 5, 10, 0.92);
+  box-shadow: 3px 3px 0 rgba(255, 230, 109, 0.2);
+  padding: 8px;
+}
+
 .emulator-selector-current {
   position: relative;
   display: grid;
@@ -1212,6 +1345,149 @@ h1 {
   flex: 1;
 }
 
+.local-rom-button {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid rgba(184, 255, 22, 0.5);
+  background: rgba(184, 255, 22, 0.06);
+  color: var(--lime);
+  cursor: pointer;
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.4rem;
+  padding: 7px 9px;
+  text-transform: uppercase;
+}
+
+.local-rom-button:hover,
+.local-rom-button.has-local-rom {
+  border-color: var(--lime);
+  background: rgba(184, 255, 22, 0.13);
+}
+
+.local-rom-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.local-rom-button:focus-within {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.local-rom-button svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.local-rom-button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memory-section {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(33, 244, 255, 0.28);
+  background: linear-gradient(135deg, rgba(33, 244, 255, 0.035), transparent 70%), rgba(5, 5, 10, 0.68);
+}
+
+.memory-section-summary {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+  padding: 9px 11px;
+}
+
+.memory-section-summary::-webkit-details-marker {
+  display: none;
+}
+
+.memory-section-title {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
+}
+
+.memory-section-title strong {
+  color: var(--cyan);
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.42rem;
+  text-transform: uppercase;
+}
+
+.memory-section-title small {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.memory-section-toggle {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  border: 1px solid rgba(33, 244, 255, 0.38);
+  background: rgba(33, 244, 255, 0.05);
+}
+
+.memory-section-toggle::before,
+.memory-section-toggle::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 2px;
+  background: var(--cyan);
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.memory-section-toggle::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.memory-section[open] > .memory-section-summary {
+  border-bottom: 1px solid rgba(33, 244, 255, 0.2);
+  background: rgba(33, 244, 255, 0.045);
+}
+
+.memory-section[open] .memory-section-toggle::after {
+  display: none;
+}
+
+.memory-terminal .memory-section-title strong {
+  color: var(--lime);
+}
+
+.memory-terminal .memory-section-toggle {
+  border-color: rgba(184, 255, 22, 0.4);
+}
+
+.memory-terminal .memory-section-toggle::before,
+.memory-terminal .memory-section-toggle::after {
+  background: var(--lime);
+}
+
 .live-terminal {
   min-width: 0;
   border: 2px solid rgba(184, 255, 22, 0.58);
@@ -1247,7 +1523,6 @@ h1 {
   margin: 0;
   padding: 10px;
   list-style: none;
-  scrollbar-color: var(--lime) var(--ink);
 }
 
 .terminal-line {
@@ -1292,6 +1567,14 @@ h1 {
   cursor: pointer;
   list-style: none;
   padding: 10px 12px;
+}
+
+.controller-mapping.memory-section {
+  border: 2px solid rgba(255, 43, 214, 0.56);
+  background:
+    linear-gradient(145deg, rgba(255, 43, 214, 0.11), rgba(33, 244, 255, 0.04) 48%, transparent 75%),
+    rgba(5, 5, 12, 0.94);
+  box-shadow: 4px 4px 0 rgba(255, 43, 214, 0.2), inset 0 0 24px rgba(33, 244, 255, 0.035);
 }
 
 .controller-mapping summary::-webkit-details-marker {
@@ -1388,6 +1671,42 @@ h1 {
   border: 1px solid rgba(33, 244, 255, 0.26);
   background: linear-gradient(100deg, rgba(33, 244, 255, 0.075), rgba(33, 244, 255, 0.015));
   padding: 9px 10px;
+}
+
+.controller-device-type {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--foreground);
+}
+
+.controller-device-type-item {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgba(33, 244, 255, 0.3);
+  background: rgba(5, 5, 10, 0.58);
+}
+
+.controller-device-type .controller-device-icon {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: var(--cyan);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.controller-device-type .usb-icon {
+  color: var(--yellow);
+  stroke: var(--yellow);
+}
+
+.controller-device-type .bluetooth-icon {
+  color: var(--cyan);
+  stroke: var(--cyan);
 }
 
 .controller-device-indicator {
@@ -1517,7 +1836,6 @@ h1 {
   border: 1px solid rgba(33, 244, 255, 0.14);
   background: rgba(0, 0, 0, 0.24);
   padding: 7px;
-  scrollbar-color: var(--cyan) var(--ink);
 }
 
 .controller-binding {
@@ -1611,6 +1929,7 @@ h1 {
 .save-slots {
   display: grid;
   gap: 12px;
+  padding: 10px;
 }
 
 .save-slot {
@@ -2174,15 +2493,16 @@ h1 {
 
 @media (max-width: 1180px) {
   .arcade-grid {
-    grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+    grid-template-columns: minmax(190px, 0.8fr) minmax(360px, 1.6fr) minmax(205px, 0.9fr);
+    gap: clamp(10px, 1.6vw, 16px);
   }
 
-  .memory-panel {
-    grid-column: 1 / -1;
+  .memory-column {
+    grid-column: auto;
   }
 
   .save-slots {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 }
 
@@ -2200,7 +2520,7 @@ h1 {
     order: 2;
   }
 
-  .memory-panel {
+  .memory-column {
     order: 3;
   }
 

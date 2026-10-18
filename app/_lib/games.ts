@@ -55,6 +55,18 @@ export const supportedGameExtensions = (mode: GameMode) => {
 export const isSupportedGameFile = (mode: GameMode, file: string) =>
   supportedGameExtensions(mode).some((pattern) => pattern.test(file));
 
+export const gameFileAccept = (mode: GameMode) =>
+  supportedGameExtensions(mode)
+    .flatMap((pattern) =>
+      pattern.source
+        .replace(/^\\\./, "")
+        .replace(/\$$/, "")
+        .replace(/[()]/g, "")
+        .split("|"),
+    )
+    .map((extension) => `.${extension}`)
+    .join(",");
+
 export const slugFor = (value: string) =>
   value
     .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|md|gen|smd|bin|sms|gg|sg|cue|iso|chd|cso|isz|elf|gba|gbc|gb)$/i, "")

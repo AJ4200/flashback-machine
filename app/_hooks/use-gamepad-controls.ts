@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { GameMode } from "../_lib/types";
+import type { RefObject } from "react";
 
 export type ControllerBinding = {
   id: string;
@@ -141,19 +142,42 @@ function legacyKeyCode(code: string) {
   return 0;
 }
 
-function dispatchKey(type: "keydown" | "keyup", code: string) {
+function getInputTarget(mount: HTMLDivElement | null) {
+  if (!mount) {
+    return null;
+  }
+
+  const target =
+    mount.querySelector<HTMLElement>("canvas, ruffle-player, [tabindex]") ??
+    mount.querySelector("iframe")?.contentDocument?.querySelector<HTMLElement>("canvas, [tabindex]") ??
+    mount.querySelector("iframe") ??
+    mount;
+  if (target.tabIndex < 0) {
+    target.tabIndex = 0;
+  }
+
+  return target;
+}
+
+function dispatchKey(type: "keydown" | "keyup", code: string, target: HTMLElement | null) {
+  if (!target) {
+    return;
+  }
+
   const event = new KeyboardEvent(type, {
     bubbles: true,
     cancelable: true,
     code,
+    composed: true,
     key: keyFromCode(code),
   });
   const keyCode = legacyKeyCode(code);
 
   Object.defineProperty(event, "keyCode", { get: () => keyCode });
   Object.defineProperty(event, "which", { get: () => keyCode });
+  event.preventDefault();
 
-  document.dispatchEvent(event);
+  target.dispatchEvent(event);
 }
 
 function buttonLabel(index: number) {
@@ -162,7 +186,7 @@ function buttonLabel(index: number) {
   return labels[index] ?? `button ${index + 1}`;
 }
 
-export function useGamepadControls(mode: GameMode, enabled: boolean) {
+export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: RefObject<HTMLDivElement | null>) {
   const [mappings, setMappings] = useState<Record<GameMode, ControllerBinding[]>>(createDefaultMappings);
   const [storageReady, setStorageReady] = useState(false);
   const [controllerStatus, setControllerStatus] = useState("checking gamepads");
@@ -282,7 +306,8 @@ export function useGamepadControls(mode: GameMode, enabled: boolean) {
     const pressedKeyboardCodes = new Set<string>();
 
     const releaseKeys = () => {
-      pressedKeys.forEach((code) => dispatchKey("keyup", code));
+      const target = getInputTarget(mountRef.current);
+      pressedKeys.forEach((code) => dispatchKey("keyup", code, target));
       pressedKeys.clear();
     };
 
@@ -317,6 +342,7 @@ export function useGamepadControls(mode: GameMode, enabled: boolean) {
 
       const nextPressedKeys = new Set<string>();
       const activeControls: string[] = [];
+      const target = getInputTarget(mountRef.current);
       for (const binding of activeMappings) {
         const button = gamepad?.buttons[binding.gamepadButton];
         let gamepadPressed = Boolean(button && (button.pressed || button.value > 0.55));
@@ -347,13 +373,16 @@ export function useGamepadControls(mode: GameMode, enabled: boolean) {
 
       pressedKeys.forEach((code) => {
         if (!nextPressedKeys.has(code)) {
-          dispatchKey("keyup", code);
+          dispatchKey("keyup", code, target);
           pressedKeys.delete(code);
         }
       });
       nextPressedKeys.forEach((code) => {
         if (!pressedKeys.has(code)) {
-          dispatchKey("keydown", code);
+          if (enabled && target) {
+            target.focus({ preventScroll: true });
+          }
+          dispatchKey("keydown", code, target);
           pressedKeys.add(code);
         }
       });
@@ -375,7 +404,7 @@ export function useGamepadControls(mode: GameMode, enabled: boolean) {
       releaseKeys();
       setActiveControlIds([]);
     };
-  }, [activeMappings, captureAction, enabled, updateBinding]);
+  }, [activeMappings, captureAction, enabled, mountRef, updateBinding]);
 
   return {
     activeMappings,

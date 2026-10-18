@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useGamepadControls } from "../../_hooks/use-gamepad-controls";
-import { slugFor } from "../../_lib/games";
+import { gameFileAccept, slugFor } from "../../_lib/games";
 import type { Game, GameMode, SaveSlot } from "../../_lib/types";
 
 export type ActivityLine = {
@@ -19,10 +19,14 @@ type MemoryPanelProps = {
   clearSlot: (slot: number) => void;
   gameCount: number;
   installPwa: () => void;
+  isLocalGame: boolean;
   loadSlot: (slot: number) => void;
+  localRomName?: string;
   mode: GameMode;
+  mountRef: RefObject<HTMLDivElement | null>;
   muted: boolean;
   notice: string;
+  onLoadLocalFile: (file: File) => void;
   onToggleMuted: () => void;
   onVolumeChange: (volume: number) => void;
   pwaStatus: string;
@@ -127,10 +131,14 @@ export function MemoryPanel({
   clearSlot,
   gameCount,
   installPwa,
+  isLocalGame,
   loadSlot,
+  localRomName,
   mode,
+  mountRef,
   muted,
   notice,
+  onLoadLocalFile,
   onToggleMuted,
   onVolumeChange,
   pwaStatus,
@@ -153,7 +161,8 @@ export function MemoryPanel({
     resetMappings,
     setKeyboardMapping,
     startGamepadCapture,
-  } = useGamepadControls(mode, Boolean(selectedGame));
+  } = useGamepadControls(mode, Boolean(selectedGame), mountRef);
+  const controllerConnected = !["checking gamepads", "Gamepad API unavailable", "no controller connected"].includes(controllerStatus);
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -185,28 +194,42 @@ export function MemoryPanel({
   }, [keyboardCaptureAction, setKeyboardMapping]);
 
   return (
-    <aside className="memory-panel" aria-label="Save data">
-      <div className="panel-header">
-        <span>memory card</span>
-        <strong>{notice}</strong>
-      </div>
-
+    <div className="memory-column">
       <div className="emulator-selector">
-        <button
-          aria-controls={selectorOpen ? "emulator-options" : undefined}
-          aria-expanded={selectorOpen}
-          aria-label={`Selected emulator: ${currentOption.label}. ${selectorOpen ? "Hide" : "Show"} emulator list`}
-          className="emulator-selector-current"
-          onClick={() => setSelectorOpen((open) => !open)}
-          type="button"
-        >
-          <span className="emulator-selector-caption">selected emulator / click to change</span>
-          <span className="mode-button-content">
-            <span className="mode-button-icon">{currentOption.icon}</span>
-            <strong className="mode-button-text">{currentOption.label}</strong>
-          </span>
-          <span className="emulator-selector-chevron" aria-hidden="true">{selectorOpen ? "-" : "+"}</span>
-        </button>
+        <div className="emulator-tools">
+          <button
+            aria-controls={selectorOpen ? "emulator-options" : undefined}
+            aria-expanded={selectorOpen}
+            aria-label={`Selected emulator: ${currentOption.label}. ${selectorOpen ? "Hide" : "Show"} emulator list`}
+            className="emulator-selector-current"
+            onClick={() => setSelectorOpen((open) => !open)}
+            type="button"
+          >
+            <span className="emulator-selector-caption">selected emulator / click to change</span>
+            <span className="mode-button-content">
+              <span className="mode-button-icon">{currentOption.icon}</span>
+              <strong className="mode-button-text">{currentOption.label}</strong>
+            </span>
+            <span className="emulator-selector-chevron" aria-hidden="true">{selectorOpen ? "-" : "+"}</span>
+          </button>
+          <label className={`local-rom-button ${isLocalGame ? "has-local-rom" : ""}`}>
+            <input
+              accept={gameFileAccept(mode)}
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0];
+                if (file) {
+                  onLoadLocalFile(file);
+                }
+                event.currentTarget.value = "";
+              }}
+              type="file"
+            />
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3" />
+            </svg>
+            <span>{localRomName ? `local: ${localRomName}` : "load local file"}</span>
+          </label>
+        </div>
         {selectorOpen ? (
           <div className="emulator-options" id="emulator-options">
             {MODE_ORDER.filter((optionMode) => optionMode !== mode).map((optionMode) => {
@@ -232,154 +255,198 @@ export function MemoryPanel({
         ) : null}
       </div>
 
-      <section className="live-terminal" aria-label="Emulator activity terminal">
-        <div className="terminal-heading">
-          <span>live terminal</span>
-          <strong>● {activityLines.length ? "connected" : "standby"}</strong>
+      <aside className="memory-panel" aria-label="Memory card and emulator settings">
+        <div className="panel-header">
+          <span>memory card</span>
+          <strong>{notice}</strong>
         </div>
-        <ol className="terminal-lines" ref={terminalRef} aria-live="polite" aria-relevant="additions text" role="log">
-          {activityLines.map((line) => (
-            <li className={`terminal-line ${line.level}`} key={line.id}>
-              <time>{line.time}</time>
-              <span>{line.message}</span>
-            </li>
-          ))}
-        </ol>
-      </section>
 
-      <details className="controller-mapping">
-        <summary>
-          <span className="controller-card-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" focusable="false">
-              <path d="M7 8h10a4 4 0 0 1 3.8 5.2l-1.1 3.2a2 2 0 0 1-3.2.9L14 15h-4l-2.5 2.3a2 2 0 0 1-3.2-.9l-1.1-3.2A4 4 0 0 1 7 8Z" />
-              <path d="M7 10.5v4m-2-2h4m7-1h.01M18 13h.01" />
-            </svg>
-          </span>
-          <span className="controller-card-title">
-            <strong>controller setup</strong>
-            <small>keyboard + gamepad controls</small>
-          </span>
-          <span className="controller-card-toggle" aria-hidden="true" />
-        </summary>
-        <div className="controller-card-content">
-          <div className={`controller-device-card ${controllerStatus === "no controller connected" ? "" : "is-connected"}`}>
-            <span className="controller-device-indicator" aria-hidden="true" />
-            <span className="controller-device-info">
-              <small>controller status</small>
-              <strong>{controllerStatus}</strong>
+        <details className="memory-section memory-terminal">
+          <summary className="memory-section-summary">
+            <span className="memory-section-title">
+              <strong>live terminal</strong>
+              <small>emulator activity</small>
             </span>
-            <span className="controller-device-type">USB / BT</span>
-          </div>
-          <p className="controller-help">
-            Connect a USB or Bluetooth gamepad. Standard Xbox 360 layouts work automatically. Press a mapped input to test it, or select a binding to change it.
-          </p>
-          <div className={`controller-test-readout ${activeControlIds.length ? "is-active" : ""}`} role="status" aria-live="polite">
-            <span className="controller-test-icon" aria-hidden="true">{activeControlIds.length ? "✓" : "TEST"}</span>
-            <span className="controller-test-copy">
-              <small>{activeControlIds.length ? "input detected" : "live input test"}</small>
-              <strong>
-                {activeControlIds.length
-                  ? activeMappings.filter((binding) => activeControlIds.includes(binding.id)).map((binding) => binding.label).join(", ")
-                  : "Press a mapped key or controller button"}
-              </strong>
+            <span className="memory-section-toggle" aria-hidden="true" />
+          </summary>
+          <section className="live-terminal" aria-label="Emulator activity terminal">
+            <div className="terminal-heading">
+              <span>runtime log</span>
+              <strong>● {activityLines.length ? "connected" : "standby"}</strong>
+            </div>
+            <ol className="terminal-lines" ref={terminalRef} aria-live="polite" aria-relevant="additions text" role="log">
+              {activityLines.map((line) => (
+                <li className={`terminal-line ${line.level}`} key={line.id}>
+                  <time>{line.time}</time>
+                  <span>{line.message}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </details>
+
+        <details className="controller-mapping memory-section">
+          <summary>
+            <span className="controller-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M7 8h10a4 4 0 0 1 3.8 5.2l-1.1 3.2a2 2 0 0 1-3.2.9L14 15h-4l-2.5 2.3a2 2 0 0 1-3.2-.9l-1.1-3.2A4 4 0 0 1 7 8Z" />
+                <path d="M7 10.5v4m-2-2h4m7-1h.01M18 13h.01" />
+              </svg>
             </span>
+            <span className="controller-card-title">
+              <strong>controller setup</strong>
+              <small>keyboard + gamepad controls</small>
+            </span>
+            <span className="controller-card-toggle" aria-hidden="true" />
+          </summary>
+          <div className="controller-card-content">
+            <div className={`controller-device-card ${controllerConnected ? "is-connected" : ""}`}>
+              <span className="controller-device-indicator" aria-hidden="true" />
+              <span className="controller-device-info">
+                <small>controller status</small>
+                <strong>{controllerStatus}</strong>
+              </span>
+              <span className="controller-device-type" role="group" aria-label="Supported controller connections">
+                <span className="controller-device-type-item" title="USB controller">
+                  <svg className="controller-device-icon usb-icon" viewBox="0 0 24 24" role="img" aria-label="USB">
+                    <path d="M12 21V4m0 0L8.5 7.5M12 4l3.5 3.5M12 13l-5-5m5 2 5-5M7 8v5" />
+                    <circle cx="7" cy="15" r="2" />
+                    <rect x="15" y="2" width="4" height="4" />
+                    <path d="M10.5 21h3L12 18z" />
+                  </svg>
+                </span>
+                <span className="controller-device-type-item" title="Bluetooth controller">
+                  <svg className="controller-device-icon bluetooth-icon" viewBox="0 0 24 24" role="img" aria-label="Bluetooth">
+                    <path d="M12 3v18l6-5-12-10m0 12L18 8l-6-5" />
+                  </svg>
+                </span>
+              </span>
+            </div>
+            <p className="controller-help">
+              Connect a USB or Bluetooth gamepad. Standard Xbox 360 layouts work automatically. Press a mapped input to test it, or select a binding to change it.
+            </p>
+            <div className={`controller-test-readout ${activeControlIds.length ? "is-active" : ""}`} role="status" aria-live="polite">
+              <span className="controller-test-icon" aria-hidden="true">{activeControlIds.length ? "✓" : "TEST"}</span>
+              <span className="controller-test-copy">
+                <small>{activeControlIds.length ? "input detected" : "live input test"}</small>
+                <strong>
+                  {activeControlIds.length
+                    ? activeMappings.filter((binding) => activeControlIds.includes(binding.id)).map((binding) => binding.label).join(", ")
+                    : "Press a mapped key or controller button"}
+                </strong>
+              </span>
+            </div>
+            <div className="controller-binding-heading">
+              <span>control map</span>
+              <small>{activeMappings.length} inputs</small>
+            </div>
+            <div className="controller-binding-list">
+              {activeMappings.map((binding) => (
+                <div className={`controller-binding ${activeControlIds.includes(binding.id) ? "is-active" : ""}`} key={binding.id}>
+                  <strong>{binding.label}</strong>
+                  <button
+                    className="control-map-button"
+                    aria-label={`Change keyboard mapping for ${binding.label}`}
+                    onClick={() => setKeyboardCaptureAction((current) => (current === binding.id ? null : binding.id))}
+                    type="button"
+                  >
+                    <span>keyboard</span>
+                    <b>{keyboardCaptureAction === binding.id ? "press key..." : binding.keyboardCode.replace("Arrow", "")}</b>
+                  </button>
+                  <button
+                    className="control-map-button gamepad-map-button"
+                    aria-label={`Change gamepad mapping for ${binding.label}`}
+                    onClick={() => startGamepadCapture(binding.id)}
+                    type="button"
+                  >
+                    <span>gamepad</span>
+                    <b>{capturingAction === binding.id ? "press button..." : buttonLabel(binding.gamepadButton)}</b>
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button className="control-reset-button" onClick={resetMappings} type="button">
+              reset {currentOption.label} controls
+            </button>
           </div>
-          <div className="controller-binding-heading">
-            <span>control map</span>
-            <small>{activeMappings.length} inputs</small>
-          </div>
-          <div className="controller-binding-list">
-            {activeMappings.map((binding) => (
-              <div className={`controller-binding ${activeControlIds.includes(binding.id) ? "is-active" : ""}`} key={binding.id}>
-                <strong>{binding.label}</strong>
-                <button
-                  className="control-map-button"
-                  aria-label={`Change keyboard mapping for ${binding.label}`}
-                  onClick={() => setKeyboardCaptureAction((current) => (current === binding.id ? null : binding.id))}
-                  type="button"
-                >
-                  <span>keyboard</span>
-                  <b>{keyboardCaptureAction === binding.id ? "press key..." : binding.keyboardCode.replace("Arrow", "")}</b>
-                </button>
-                <button
-                  className="control-map-button gamepad-map-button"
-                  aria-label={`Change gamepad mapping for ${binding.label}`}
-                  onClick={() => startGamepadCapture(binding.id)}
-                  type="button"
-                >
-                  <span>gamepad</span>
-                  <b>{capturingAction === binding.id ? "press button..." : buttonLabel(binding.gamepadButton)}</b>
-                </button>
+        </details>
+
+        <details className="memory-section">
+          <summary className="memory-section-summary">
+            <span className="memory-section-title"><strong>save slots</strong><small>game progress</small></span>
+            <span className="memory-section-toggle" aria-hidden="true" />
+          </summary>
+          <div className="save-slots">
+            {saveSlots.map((slot) => (
+              <div className="save-slot" key={slot.id}>
+                <div>
+                  <strong>slot {slot.id}</strong>
+                  <small>{slot.createdAt ? new Date(slot.createdAt).toLocaleString() : "empty"}</small>
+                </div>
+                <div className="slot-actions">
+                  <button onClick={() => saveSlot(slot.id)} type="button">save</button>
+                  <button disabled={!slot.createdAt} onClick={() => loadSlot(slot.id)} type="button">load</button>
+                  <button disabled={!slot.createdAt} onClick={() => clearSlot(slot.id)} type="button">clear</button>
+                </div>
               </div>
             ))}
           </div>
-          <button className="control-reset-button" onClick={resetMappings} type="button">
-            reset {currentOption.label} controls
-          </button>
-        </div>
-      </details>
+        </details>
 
-      <div className="save-slots">
-        {saveSlots.map((slot) => (
-          <div className="save-slot" key={slot.id}>
-            <div>
-              <strong>slot {slot.id}</strong>
-              <small>{slot.createdAt ? new Date(slot.createdAt).toLocaleString() : "empty"}</small>
-            </div>
-            <div className="slot-actions">
-              <button onClick={() => saveSlot(slot.id)} type="button">
-                save
-              </button>
-              <button disabled={!slot.createdAt} onClick={() => loadSlot(slot.id)} type="button">
-                load
-              </button>
-              <button disabled={!slot.createdAt} onClick={() => clearSlot(slot.id)} type="button">
-                clear
-              </button>
-            </div>
+        <details className="memory-section">
+          <summary className="memory-section-summary">
+            <span className="memory-section-title"><strong>auto memory</strong><small>current game data</small></span>
+            <span className="memory-section-toggle" aria-hidden="true" />
+          </summary>
+          <div className="system-readout">
+            <span>active game</span>
+            <strong>{selectedGame ? slugFor(selectedGame.file) : "idle"}</strong>
           </div>
-        ))}
-      </div>
+        </details>
 
-      <div className="system-readout">
-        <span>auto memory</span>
-        <strong>{selectedGame ? slugFor(selectedGame.file) : "idle"}</strong>
-      </div>
+        <details className="memory-section">
+          <summary className="memory-section-summary">
+            <span className="memory-section-title"><strong>audio controls</strong><small>volume and sound</small></span>
+            <span className="memory-section-toggle" aria-hidden="true" />
+          </summary>
+          <div className="audio-deck" aria-label="Audio controls">
+            <button className={muted ? "audio-mute is-muted" : "audio-mute"} onClick={onToggleMuted} type="button">
+              {muted ? "muted" : "sound"}
+            </button>
+            <label className="volume-control">
+              <span>volume</span>
+              <input
+                aria-label="Volume"
+                max="100"
+                min="0"
+                onChange={(event) => onVolumeChange(Number(event.target.value))}
+                step="1"
+                type="range"
+                value={volume}
+              />
+            </label>
+            <strong className="volume-readout">{muted ? "00" : volume.toString().padStart(2, "0")}</strong>
+          </div>
+        </details>
 
-      <div className="audio-deck" aria-label="Audio controls">
-        <button className={muted ? "audio-mute is-muted" : "audio-mute"} onClick={onToggleMuted} type="button">
-          {muted ? "muted" : "sound"}
-        </button>
-        <label className="volume-control">
-          <span>volume</span>
-          <input
-            aria-label="Volume"
-            max="100"
-            min="0"
-            onChange={(event) => onVolumeChange(Number(event.target.value))}
-            step="1"
-            type="range"
-            value={volume}
-          />
-        </label>
-        <strong className="volume-readout">{muted ? "00" : volume.toString().padStart(2, "0")}</strong>
-      </div>
-
-      <div className="pwa-panel">
-        <div>
-          <span>pwa deck</span>
-          <strong>{pwaStatus}</strong>
-        </div>
-        <button disabled={!canInstall} onClick={installPwa} type="button">
-          install
-        </button>
-        <button disabled={cacheBusy || !selectedGame} onClick={cacheSelectedGame} type="button">
-          cache game
-        </button>
-        <button disabled={cacheBusy || gameCount === 0} onClick={cacheLibrary} type="button">
-          cache all
-        </button>
-      </div>
-    </aside>
+        <details className="memory-section">
+          <summary className="memory-section-summary">
+            <span className="memory-section-title"><strong>offline deck</strong><small>install and cache</small></span>
+            <span className="memory-section-toggle" aria-hidden="true" />
+          </summary>
+          <div className="pwa-panel">
+            <div>
+              <span>offline status</span>
+              <strong>{pwaStatus}</strong>
+            </div>
+            <button disabled={!canInstall} onClick={installPwa} type="button">install</button>
+            <button disabled={cacheBusy || !selectedGame || isLocalGame} onClick={cacheSelectedGame} type="button">
+              cache game
+            </button>
+            <button disabled={cacheBusy || gameCount === 0} onClick={cacheLibrary} type="button">cache all</button>
+          </div>
+        </details>
+      </aside>
+    </div>
   );
 }

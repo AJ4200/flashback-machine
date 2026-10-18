@@ -1,6 +1,6 @@
 # FlashBack Machine
 
-FlashBack Machine is an immersive retro browser arcade for classic Flash, DOS, Game Boy, MAME, NES, PlayStation 2, and Sega games. It uses Ruffle, js-dos, and bundled WebAssembly emulators inside a neon pixel-art interface with local save slots, fullscreen play, downloads, and PWA offline caching.
+FlashBack Machine is an immersive retro browser arcade for classic Flash, DOS, Game Boy, MAME, NES, PC Engine/TurboGrafx-16, PlayStation 2, and Sega games. It uses Ruffle, js-dos, and bundled WebAssembly emulators inside a neon pixel-art interface with local save slots, fullscreen play, downloads, and PWA offline caching.
 
 Made with love by aj4200.
 
@@ -12,10 +12,12 @@ Made with love by aj4200.
 - NES playback with automatic fallback across the bundled Nestopia, FCEUmm, and QuickNES RetroArch cores
 - Experimental PlayStation 2 playback through the bundled Play! WebAssembly emulator
 - MAME playback with automatic fallback across the bundled MAME 2003-Plus, MAME 2003, and MAME 2000 RetroArch cores
+- PC Engine/TurboGrafx-16 playback through the Mednafen PCE Fast RetroArch core
 - Sega playback through the bundled Genesis Plus GX RetroArch core
 - Pixel arcade UI with boot splash, fake loader, CRT scanlines, neon colors, and transitions
 - Searchable game cabinet generated from each emulator catalog
 - Collapsible emulator selector, live startup terminal, and in-screen loading/error feedback
+- Switching emulator systems shuts down the previously active player runtime
 - Per-emulator keyboard and Gamepad API mappings with plug-and-play standard-layout Xbox 360 controller defaults
 - Load supported game files directly from your device without adding them to the hosted catalog
 - Fullscreen cabinet mode
@@ -71,6 +73,7 @@ public/games/gba/gbalist.json
 public/games/jsdos/jsdoslist.json
 public/games/mame/mamelist.json
 public/games/nes/neslist.json
+public/games/pcengine/pcenginelist.json
 public/games/ps2/ps2list.json
 public/games/sega/segalist.json
 ```
@@ -94,6 +97,7 @@ public/games/gba/
 public/games/jsdos/
 public/games/mame/
 public/games/nes/
+public/games/pcengine/
 public/games/ps2/
 public/games/sega/
 ```
@@ -104,9 +108,11 @@ PS2 note: The experimental Play! browser emulator supports `.iso`, `.cso`, `.chd
 
 Game Boy note: The bundled mGBA core supports `.gb`, `.gbc`, and `.gba` ROMs. The runtime files and mGBA license are in `public/emulators/retroarch`.
 
+PC Engine note: The bundled Mednafen PCE Fast core supports `.pce` ROMs. Add them to `public/games/pcengine` and list their exact filenames in `pcenginelist.json`, or load one directly from your device.
+
 Controller note: Open `controller setup` in the right-side memory panel to see connected gamepads, remap keyboard keys or gamepad buttons for the selected emulator, and restore that emulator's defaults. Standard-layout Xbox 360 USB controllers use the preset mapping; other Gamepad API controllers can be remapped. The left stick and D-pad both control directions. Mapped keyboard and gamepad inputs are forwarded to the active player surface rather than activating browser controls. Custom mappings are saved in this browser.
 
-Local file note: Use `load local file` above the memory panel to load a game from your device. Supported extensions follow the active emulator's catalog formats: Flash `.swf`; Game Boy `.gb`, `.gbc`, `.gba`; JS-DOS `.jsdos`; MAME `.zip`, `.7z`, `.chd`; NES `.nes`, `.fds`, `.unf`, `.unif`; PS2 `.iso`, `.cso`, `.chd`, `.isz`, `.bin`, `.elf`; and SEGA `.md`, `.gen`, `.smd`, `.bin`, `.sms`, `.gg`, `.sg`, `.cue`, `.iso`, `.chd`. Files are loaded in your browser and are not uploaded to the server or retained after the page is closed.
+Local file note: Use `load local file` above the memory panel to load a game from your device. Supported extensions follow the active emulator's catalog formats: Flash `.swf`; Game Boy `.gb`, `.gbc`, `.gba`; JS-DOS `.jsdos`; MAME `.zip`, `.7z`, `.chd`; NES `.nes`, `.fds`, `.unf`, `.unif`; PC Engine `.pce`; PS2 `.iso`, `.cso`, `.chd`, `.isz`, `.bin`, `.elf`; and SEGA `.md`, `.gen`, `.smd`, `.bin`, `.sms`, `.gg`, `.sg`, `.cue`, `.iso`, `.chd`. Files are loaded in your browser and are not uploaded to the server or retained after the page is closed.
 
 ## Offline PWA
 
@@ -119,7 +125,7 @@ FlashBack Machine includes:
 - Local RetroArch cores in `public/emulators/retroarch`
 - The mGBA core is cached with the other emulator runtimes for offline use
 
-When the app loads, it registers the service worker and caches the app shell, manifest, icons, catalogs, Ruffle files, and RetroArch core files.
+When the app loads, it registers the service worker and caches the app shell, manifest, icons, catalogs, Ruffle files, and RetroArch core files, including Mednafen PCE Fast for PC Engine games.
 
 Games are cached in two ways:
 

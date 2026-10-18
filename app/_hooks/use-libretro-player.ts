@@ -23,6 +23,7 @@ function coreLabel(core: string) {
     mame2000: "MAME 2000",
     mame2003: "MAME 2003",
     mame2003_plus: "MAME 2003-Plus",
+    mednafen_pce_fast: "Mednafen PCE Fast",
     nestopia: "Nestopia",
     quicknes: "QuickNES",
   };
@@ -54,6 +55,18 @@ async function loadCore(core: string) {
 function ensureDirectory(fs: any, folder: string) {
   if (!fs.analyzePath(folder).exists) {
     fs.mkdir(folder);
+  }
+}
+
+function stopRuntime(runtime: any, core: string) {
+  if (typeof runtime?.quit !== "function") {
+    return;
+  }
+
+  try {
+    runtime.quit(0);
+  } catch (error) {
+    console.error(`Could not stop ${coreLabel(core)} runtime`, error);
   }
 }
 
@@ -147,12 +160,13 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
             const createCore = await loadCore(currentCore);
             setPlayerStatus(`initializing ${coreLabel(currentCore)}`);
             emulator = await createCore(Module);
-            moduleInstance.current = emulator;
 
             if (cancelled) {
+              stopRuntime(emulator, currentCore);
               return;
             }
 
+            moduleInstance.current = emulator;
             if (!emulator?.FS) {
               throw new Error(`${coreLabel(currentCore)} filesystem unavailable`);
             }
@@ -187,15 +201,15 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
             setNotice(`${selectedGame.title} inserted (${coreLabel(currentCore)})`);
             return;
           } catch (error) {
-            if (emulator && typeof emulator.quit === "function") {
-              try {
-                emulator.quit(0);
-              } catch {
-                // Ignore shutdown errors while moving to the next core.
-              }
-            }
             if (moduleInstance.current === emulator) {
               moduleInstance.current = null;
+              stopRuntime(emulator, currentCore);
+            } else if (!cancelled) {
+              stopRuntime(emulator, currentCore);
+            }
+
+            if (cancelled) {
+              return;
             }
 
             const errorMessage = error instanceof Error ? error.message : String(error);
@@ -209,6 +223,10 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
           }
         }
       } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
         console.error(error);
         setPlayerStatus(`${label} runtime error: ${error instanceof Error ? error.message : String(error)}`);
         setNotice(`${label.toUpperCase()} could not load this rom`);
@@ -219,17 +237,10 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
 
     return () => {
       cancelled = true;
-      if (moduleInstance.current && typeof moduleInstance.current.quit === "function") {
-        try {
-          moduleInstance.current.quit(0);
-        } catch {
-          // ignore cleanup failures
-        }
-      }
+      const runtime = moduleInstance.current;
       moduleInstance.current = null;
-      if (mountRef.current) {
-        mountRef.current.innerHTML = "";
-      }
+      stopRuntime(runtime, label);
+      mount.replaceChildren();
     };
   }, [core, label, mode, mountRef, reloadToken, selectedGame, setNotice]);
 

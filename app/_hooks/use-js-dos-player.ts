@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type RefObject } from "react";
-import type { Game } from "../_lib/types";
+import type { Game, JsDosPlayerHandle } from "../_lib/types";
 
 type UseJsDosPlayerOptions = {
   mountRef: RefObject<HTMLDivElement | null>;
@@ -13,7 +13,7 @@ type UseJsDosPlayerOptions = {
 export function useJsDosPlayer({ mountRef, reloadToken, selectedGame, setNotice }: UseJsDosPlayerOptions) {
   const [playerStatus, setPlayerStatus] = useState("waiting for game");
   const [dosReady, setDosReady] = useState(false);
-  const rootRef = useRef<HTMLDivElement | null>(null);
+  const dosInstanceRef = useRef<JsDosPlayerHandle | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -53,7 +53,6 @@ export function useJsDosPlayer({ mountRef, reloadToken, selectedGame, setNotice 
     host.style.height = "100%";
     host.style.minHeight = "280px";
     mount.appendChild(host);
-    rootRef.current = host;
 
     setPlayerStatus("loading dos bundle");
 
@@ -68,7 +67,7 @@ export function useJsDosPlayer({ mountRef, reloadToken, selectedGame, setNotice 
     };
 
     try {
-      window.Dos?.(host, options);
+      dosInstanceRef.current = window.Dos(host, options);
       setPlayerStatus("live");
       setNotice(`${selectedGame.title} booted`);
     } catch (error) {
@@ -77,11 +76,14 @@ export function useJsDosPlayer({ mountRef, reloadToken, selectedGame, setNotice 
     }
 
     return () => {
-      if (rootRef.current) {
-        rootRef.current.innerHTML = "";
+      const dosInstance = dosInstanceRef.current;
+      dosInstanceRef.current = null;
+      if (dosInstance) {
+        void dosInstance.stop().catch((error: unknown) => {
+          console.error("Could not stop the DOS runtime", error);
+        });
       }
-      mount.innerHTML = "";
-      rootRef.current = null;
+      mount.replaceChildren();
     };
   }, [dosReady, mountRef, reloadToken, selectedGame, setNotice]);
 

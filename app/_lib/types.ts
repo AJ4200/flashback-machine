@@ -1,4 +1,4 @@
-export type GameMode = "flash" | "gba" | "jsdos" | "mame" | "nes" | "ps2" | "sega";
+export type GameMode = "flash" | "gba" | "jsdos" | "mame" | "nes" | "pcengine" | "ps2" | "sega";
 
 export type Game = {
   file: string;
@@ -17,11 +17,17 @@ export type SaveSlot = {
 
 export type RufflePlayerElement = HTMLElement & {
   ruffle?: () => {
+    destroy?: () => void;
     load: (options: { url: string; autoplay?: "auto" | "on" | "off" }) => Promise<unknown>;
     volume?: number;
   };
+  destroy?: () => void;
   load?: (options: { url: string; autoplay?: "auto" | "on" | "off" }) => Promise<unknown>;
   volume?: number;
+};
+
+export type JsDosPlayerHandle = {
+  stop: () => Promise<void>;
 };
 
 export type BeforeInstallPromptEvent = Event & {
@@ -31,7 +37,7 @@ export type BeforeInstallPromptEvent = Event & {
 
 declare global {
   interface Window {
-    Dos?: (root: HTMLElement, options?: Record<string, unknown>) => unknown;
+    Dos?: (root: HTMLElement, options?: Record<string, unknown>) => JsDosPlayerHandle;
     RufflePlayer?: {
       config?: Record<string, unknown>;
       newest: () => {

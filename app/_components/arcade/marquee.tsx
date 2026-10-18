@@ -21,6 +21,8 @@ export function Marquee({ mode, playerStatus, ruffleReady }: MarqueeProps) {
       ? "MAME AUTO-DETECT CORE"
       : mode === "sega"
       ? "SEGA GENESIS PLUS GX CORE"
+      : mode === "pcengine"
+      ? "PC ENGINE · MEDNAFEN PCE FAST CORE"
       : undefined;
   const runtimeStatus = mode === "flash" ? (ruffleReady ? "RUFFLE ONLINE" : "RUFFLE BOOTING") : ruffleReady ? `${mode.toUpperCase()} ONLINE` : `${mode.toUpperCase()} BOOTING`;
 

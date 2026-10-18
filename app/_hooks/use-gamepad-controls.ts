@@ -82,6 +82,13 @@ function createDefaultMappings(): Record<GameMode, ControllerBinding[]> {
       { id: "c", label: "C", keyboardCode: "KeyD", gamepadButton: 2 },
       { id: "start", label: "start", keyboardCode: "Enter", gamepadButton: 9 },
     ],
+    pcengine: [
+      ...directions,
+      { id: "button1", label: "I", keyboardCode: "KeyZ", gamepadButton: 0 },
+      { id: "button2", label: "II", keyboardCode: "KeyX", gamepadButton: 1 },
+      { id: "select", label: "select", keyboardCode: "ShiftRight", gamepadButton: 8 },
+      { id: "run", label: "run", keyboardCode: "Enter", gamepadButton: 9 },
+    ],
   };
 }
 

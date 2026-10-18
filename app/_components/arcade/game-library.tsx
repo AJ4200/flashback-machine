@@ -15,7 +15,7 @@ type GameLibraryProps = {
 };
 
 export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery, isLoading, totalFiles, supportedCount, unsupportedFiles }: GameLibraryProps) {
-  const libraryName = mode === "flash" ? "Flash" : mode === "gba" ? "Game Boy" : mode === "jsdos" ? "JS DOS" : mode === "sega" ? "Sega" : mode === "ps2" ? "PS2" : mode.toUpperCase();
+  const libraryName = mode === "flash" ? "Flash" : mode === "gba" ? "Game Boy" : mode === "jsdos" ? "JS DOS" : mode === "sega" ? "Sega" : mode === "pcengine" ? "PC Engine" : mode === "ps2" ? "PS2" : mode.toUpperCase();
   const searchPlaceholder = mode === "flash" ? "game title" : `${libraryName} title`;
 
   return (
@@ -55,6 +55,8 @@ export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGam
                 "Add Game Boy, Game Boy Color, or Game Boy Advance .gb, .gbc, or .gba ROMs to public/games/gba and list them in gbalist.json"
               ) : mode === "sega" ? (
                 "Add Sega .md, .gen, .smd, .bin, .sms, .gg, .cue, .iso or .chd files to public/games/sega and list them in segalist.json"
+              ) : mode === "pcengine" ? (
+                "Add PC Engine .pce ROMs to public/games/pcengine and list them in pcenginelist.json"
               ) : (
                 `Place valid ${mode} files into public/games/${mode} and list them in the catalog`
               )}

@@ -75,22 +75,42 @@ export function useRufflePlayer({ effectiveVolume, mountRef, reloadToken, select
 
     if (!load) {
       setPlayerStatus("ruffle api unavailable");
+      playerRef.current = null;
+      player.destroy?.();
+      mount.replaceChildren();
       return;
     }
 
+    let cancelled = false;
     load.call(ruffleApi ?? player, { url: selectedGame.path, autoplay: "on" })
       .then(() => {
+        if (cancelled) {
+          return;
+        }
         setPlayerStatus("live");
         setNotice(`${selectedGame.title} inserted`);
       })
       .catch((error: unknown) => {
+        if (cancelled) {
+          return;
+        }
         setPlayerStatus(`cartridge error: ${error instanceof Error ? error.message : String(error)}`);
         setNotice("ruffle could not load this swf");
       });
 
     return () => {
+      cancelled = true;
       playerRef.current = null;
-      mount.innerHTML = "";
+      try {
+        if (ruffleApi?.destroy) {
+          ruffleApi.destroy();
+        } else {
+          player.destroy?.();
+        }
+      } catch (error) {
+        console.error("Could not stop the Ruffle runtime", error);
+      }
+      mount.replaceChildren();
     };
   }, [mountRef, reloadToken, ruffleReady, selectedGame, setNotice]);
 

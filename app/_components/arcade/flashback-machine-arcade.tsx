@@ -10,6 +10,7 @@ import { useJsDosPlayer } from "../../_hooks/use-js-dos-player";
 import { useMamePlayer } from "../../_hooks/use-mame-player";
 import { useNesPlayer } from "../../_hooks/use-nes-player";
 import { usePs2Player } from "../../_hooks/use-ps2-player";
+import { usePcEnginePlayer } from "../../_hooks/use-pc-engine-player";
 import { usePwa } from "../../_hooks/use-pwa";
 import { useRufflePlayer } from "../../_hooks/use-ruffle-player";
 import { useSaveSlots } from "../../_hooks/use-save-slots";
@@ -46,49 +47,56 @@ export function FlashBackMachineArcade() {
 
   const { filteredGames, games, loading, totalFiles, supportedCount, unsupportedFiles, query, selectedGame: catalogSelectedGame, selectGame, setQuery } = useGameCatalog({ mode, onCatalogError });
   const selectedGame = localGame?.mode === mode ? localGame : catalogSelectedGame;
+  const playerGame = selectedGame?.mode === mode ? selectedGame : undefined;
   const { bootProgress, bootReady, bootStarted, startBoot } = useBootSequence();
   const { effectiveVolume, muted, setVolume, toggleMuted, volume } = useAudioControls();
   const { playerStatus: gbaPlayerStatus, ready: gbaReady } = useGbaPlayer({
     mountRef,
     reloadToken,
-    selectedGame,
+    selectedGame: playerGame,
     setNotice,
   });
   const { playerStatus: flashPlayerStatus, ruffleReady, setPlayerStatus: setFlashPlayerStatus, setRuffleReady } = useRufflePlayer({
     effectiveVolume,
     mountRef,
     reloadToken,
-    selectedGame,
+    selectedGame: playerGame,
     setNotice,
   });
   const { dosReady, playerStatus: dosPlayerStatus, setPlayerStatus: setDosPlayerStatus } = useJsDosPlayer({
     mountRef,
     reloadToken,
-    selectedGame,
+    selectedGame: playerGame,
     setNotice,
   });
   const { playerStatus: mamePlayerStatus, mameReady } = useMamePlayer({
     mountRef,
     reloadToken,
-    selectedGame,
+    selectedGame: playerGame,
     setNotice,
   });
   const { playerStatus: nesPlayerStatus, nesReady } = useNesPlayer({
     mountRef,
     reloadToken,
-    selectedGame,
+    selectedGame: playerGame,
     setNotice,
   });
   const { playerStatus: ps2PlayerStatus, ready: ps2Ready } = usePs2Player({
     mountRef,
     reloadToken,
-    selectedGame,
+    selectedGame: playerGame,
     setNotice,
   });
   const { playerStatus: segaPlayerStatus, segaReady } = useSegaPlayer({
     mountRef,
     reloadToken,
-    selectedGame,
+    selectedGame: playerGame,
+    setNotice,
+  });
+  const { playerStatus: pcEnginePlayerStatus, ready: pcEngineReady } = usePcEnginePlayer({
+    mountRef,
+    reloadToken,
+    selectedGame: playerGame,
     setNotice,
   });
   const { cacheBusy, cacheLibrary, cacheSelectedGame, canInstall, installPwa, pwaStatus } = usePwa(games, selectedGame, mode);
@@ -110,7 +118,9 @@ export function FlashBackMachineArcade() {
       ? nesPlayerStatus
       : mode === "ps2"
       ? ps2PlayerStatus
-      : segaPlayerStatus;
+      : mode === "sega"
+      ? segaPlayerStatus
+      : pcEnginePlayerStatus;
   const activeRuntimeReady =
     mode === "flash"
       ? ruffleReady
@@ -124,11 +134,13 @@ export function FlashBackMachineArcade() {
       ? nesReady
       : mode === "ps2"
       ? ps2Ready
-      : segaReady;
+      : mode === "sega"
+      ? segaReady
+      : pcEngineReady;
   const bootLines = [
     `FLASH / RUFFLE: ${ruffleReady ? "READY" : /error|blocked|failed/i.test(flashPlayerStatus) ? "ERROR" : "LOADING"}`,
     `DOS / JS-DOS: ${dosReady ? "READY" : /error|blocked|failed/i.test(dosPlayerStatus) ? "ERROR" : "LOADING"}`,
-    "RETROARCH NES / MAME / SEGA / GAME BOY: LOAD ON SELECT",
+    "RETROARCH NES / MAME / SEGA / PC ENGINE / GAME BOY: LOAD ON SELECT",
     "PLAY! PLAYSTATION 2: LOAD ON SELECT",
     "KEYBOARD + USB / BLUETOOTH GAMEPAD: PER-SYSTEM MAPPINGS",
   ];

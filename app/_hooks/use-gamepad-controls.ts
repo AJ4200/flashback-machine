@@ -12,6 +12,7 @@ export type ControllerBinding = {
 };
 
 const GAMEPAD_MAPPINGS_KEY = "flashback-machine:controller-mappings";
+const forwardedKeyboardEvents = new WeakSet<KeyboardEvent>();
 
 function createDefaultMappings(): Record<GameMode, ControllerBinding[]> {
   const directions = [
@@ -148,15 +149,25 @@ function getInputTarget(mount: HTMLDivElement | null) {
   }
 
   const target =
-    mount.querySelector<HTMLElement>("canvas, ruffle-player, [tabindex]") ??
+    mount.querySelector<HTMLElement>("canvas") ??
+    mount.querySelector<HTMLElement>("ruffle-player") ??
     mount.querySelector("iframe")?.contentDocument?.querySelector<HTMLElement>("canvas, [tabindex]") ??
     mount.querySelector("iframe") ??
+    mount.querySelector<HTMLElement>("[tabindex]") ??
     mount;
   if (target.tabIndex < 0) {
     target.tabIndex = 0;
   }
 
   return target;
+}
+
+function isEditingText() {
+  const focusedElement = document.activeElement;
+  return (
+    focusedElement instanceof HTMLElement &&
+    (focusedElement.isContentEditable || focusedElement.matches("input, select, textarea"))
+  );
 }
 
 function dispatchKey(type: "keydown" | "keyup", code: string, target: HTMLElement | null) {
@@ -175,6 +186,7 @@ function dispatchKey(type: "keydown" | "keyup", code: string, target: HTMLElemen
 
   Object.defineProperty(event, "keyCode", { get: () => keyCode });
   Object.defineProperty(event, "which", { get: () => keyCode });
+  forwardedKeyboardEvents.add(event);
   event.preventDefault();
 
   target.dispatchEvent(event);
@@ -304,18 +316,72 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
     let previousActiveSignature = "";
     const pressedKeys = new Set<string>();
     const pressedKeyboardCodes = new Set<string>();
+    const forwardedPhysicalKeys = new Set<string>();
 
     const releaseKeys = () => {
       const target = getInputTarget(mountRef.current);
-      pressedKeys.forEach((code) => dispatchKey("keyup", code, target));
+      new Set([...pressedKeys, ...forwardedPhysicalKeys]).forEach((code) => dispatchKey("keyup", code, target));
       pressedKeys.clear();
+      forwardedPhysicalKeys.clear();
     };
 
     const trackKeyDown = (event: KeyboardEvent) => {
+      if (forwardedKeyboardEvents.has(event)) {
+        return;
+      }
+
       pressedKeyboardCodes.add(event.code);
+      if (
+        !enabled ||
+        captureAction ||
+        isEditingText() ||
+        document.activeElement?.closest(".control-map-button.is-capturing") ||
+        !activeMappings.some((binding) => binding.keyboardCode === event.code)
+      ) {
+        return;
+      }
+
+      const target = getInputTarget(mountRef.current);
+      if (!target) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      forwardedPhysicalKeys.add(event.code);
+      target.focus({ preventScroll: true });
+      if (!pressedKeys.has(event.code)) {
+        dispatchKey("keydown", event.code, target);
+      }
     };
     const trackKeyUp = (event: KeyboardEvent) => {
+      if (forwardedKeyboardEvents.has(event)) {
+        return;
+      }
+
       pressedKeyboardCodes.delete(event.code);
+      const shouldForward =
+        forwardedPhysicalKeys.has(event.code) ||
+        (enabled &&
+          !captureAction &&
+          !isEditingText() &&
+          !document.activeElement?.closest(".control-map-button.is-capturing") &&
+          activeMappings.some((binding) => binding.keyboardCode === event.code));
+      if (!shouldForward) {
+        return;
+      }
+      forwardedPhysicalKeys.delete(event.code);
+
+      const target = getInputTarget(mountRef.current);
+      if (!target) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (!pressedKeys.has(event.code)) {
+        dispatchKey("keyup", event.code, target);
+      }
     };
 
     const poll = () => {
@@ -373,24 +439,28 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
 
       pressedKeys.forEach((code) => {
         if (!nextPressedKeys.has(code)) {
-          dispatchKey("keyup", code, target);
+          if (!forwardedPhysicalKeys.has(code)) {
+            dispatchKey("keyup", code, target);
+          }
           pressedKeys.delete(code);
         }
       });
       nextPressedKeys.forEach((code) => {
         if (!pressedKeys.has(code)) {
-          if (enabled && target) {
-            target.focus({ preventScroll: true });
+          if (!forwardedPhysicalKeys.has(code)) {
+            if (enabled && target) {
+              target.focus({ preventScroll: true });
+            }
+            dispatchKey("keydown", code, target);
           }
-          dispatchKey("keydown", code, target);
           pressedKeys.add(code);
         }
       });
 
     };
 
-    window.addEventListener("keydown", trackKeyDown);
-    window.addEventListener("keyup", trackKeyUp);
+    window.addEventListener("keydown", trackKeyDown, true);
+    window.addEventListener("keyup", trackKeyUp, true);
     poll();
     const interval = window.setInterval(poll, 32);
     window.addEventListener("gamepadconnected", poll);
@@ -399,8 +469,8 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
       window.clearInterval(interval);
       window.removeEventListener("gamepadconnected", poll);
       window.removeEventListener("gamepaddisconnected", poll);
-      window.removeEventListener("keydown", trackKeyDown);
-      window.removeEventListener("keyup", trackKeyUp);
+      window.removeEventListener("keydown", trackKeyDown, true);
+      window.removeEventListener("keyup", trackKeyUp, true);
       releaseKeys();
       setActiveControlIds([]);
     };

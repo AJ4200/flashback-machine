@@ -12,7 +12,7 @@
   --ink: #05050a;
   --muted: #9fb1b3;
   --danger: #ff4d5d;
-  --scrollbar-size: 20px;
+  --scrollbar-size: 12px;
 }
 
 @theme inline {
@@ -29,13 +29,13 @@
 @supports (-moz-appearance: none) {
   * {
     scrollbar-color: var(--magenta) var(--ink);
-    scrollbar-width: auto;
+    scrollbar-width: thin;
   }
 
   .library-panel,
   .library-panel .game-list {
     scrollbar-color: var(--cyan) var(--ink);
-    scrollbar-width: auto;
+    scrollbar-width: thin;
   }
 }
 
@@ -46,7 +46,7 @@
 }
 
 *::-webkit-scrollbar-track {
-  border: 2px solid var(--cyan);
+  border: 1px solid var(--cyan);
   background:
     repeating-linear-gradient(
       135deg,
@@ -54,19 +54,19 @@
       transparent 3px 7px
     ),
     var(--ink);
-  box-shadow: inset 0 0 0 2px rgba(255, 43, 214, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 43, 214, 0.28);
 }
 
 *::-webkit-scrollbar-thumb {
-  min-width: 38px;
-  min-height: 38px;
-  border: 3px solid var(--ink);
+  min-width: 26px;
+  min-height: 26px;
+  border: 2px solid var(--ink);
   border-radius: 0;
   background:
     linear-gradient(90deg, transparent 42%, rgba(5, 5, 10, 0.7) 42% 58%, transparent 58%),
     linear-gradient(0deg, transparent 42%, rgba(5, 5, 10, 0.7) 42% 58%, transparent 58%),
     linear-gradient(135deg, var(--lime), var(--magenta));
-  box-shadow: inset 0 0 0 2px var(--yellow);
+  box-shadow: inset 0 0 0 1px var(--yellow);
 }
 
 *::-webkit-scrollbar-thumb:hover {
@@ -87,11 +87,11 @@
   display: block;
   width: var(--scrollbar-size);
   height: var(--scrollbar-size);
-  border: 2px solid var(--magenta);
+  border: 1px solid var(--magenta);
   background-color: var(--ink);
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 12px 12px;
+  background-size: 8px 8px;
 }
 
 *::-webkit-scrollbar-button:single-button:hover {
@@ -121,7 +121,7 @@
 }
 
 *::-webkit-scrollbar-corner {
-  border: 2px solid var(--cyan);
+  border: 1px solid var(--cyan);
   background:
     linear-gradient(45deg, transparent 42%, var(--magenta) 42% 58%, transparent 58%),
     var(--ink);
@@ -130,7 +130,7 @@
 .library-panel,
 .library-panel .game-list {
   scrollbar-color: var(--cyan) var(--ink);
-  scrollbar-width: auto;
+  scrollbar-width: thin;
   scrollbar-gutter: stable;
 }
 
@@ -142,24 +142,24 @@
 
 .library-panel::-webkit-scrollbar-track,
 .library-panel .game-list::-webkit-scrollbar-track {
-  border: 2px solid var(--cyan);
+  border: 1px solid var(--cyan);
   background:
     repeating-linear-gradient(135deg, rgba(33, 244, 255, 0.14) 0 3px, transparent 3px 7px),
     var(--ink);
-  box-shadow: inset 0 0 0 2px rgba(255, 43, 214, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 43, 214, 0.28);
 }
 
 .library-panel::-webkit-scrollbar-thumb,
 .library-panel .game-list::-webkit-scrollbar-thumb {
-  min-width: 38px;
-  min-height: 38px;
-  border: 3px solid var(--ink);
+  min-width: 26px;
+  min-height: 26px;
+  border: 2px solid var(--ink);
   border-radius: 0;
   background:
     linear-gradient(90deg, transparent 42%, rgba(5, 5, 10, 0.7) 42% 58%, transparent 58%),
     linear-gradient(0deg, transparent 42%, rgba(5, 5, 10, 0.7) 42% 58%, transparent 58%),
     linear-gradient(135deg, var(--lime), var(--magenta));
-  box-shadow: inset 0 0 0 2px var(--yellow);
+  box-shadow: inset 0 0 0 1px var(--yellow);
 }
 
 .library-panel::-webkit-scrollbar-thumb:hover,
@@ -175,11 +175,11 @@
   display: block;
   width: var(--scrollbar-size);
   height: var(--scrollbar-size);
-  border: 2px solid var(--magenta);
+  border: 1px solid var(--magenta);
   background-color: var(--ink);
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 12px 12px;
+  background-size: 8px 8px;
 }
 
 .library-panel::-webkit-scrollbar-button:single-button:vertical:decrement,
@@ -1256,6 +1256,8 @@ h1 {
 }
 
 .emulator-selector {
+  position: relative;
+  z-index: 5;
   display: grid;
   gap: 8px;
 }
@@ -1316,12 +1318,18 @@ h1 {
 }
 
 .emulator-options {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 8px);
+  right: 0;
+  left: 0;
   display: grid;
-  max-height: 250px;
+  max-height: min(250px, calc(100vh - 100px));
   gap: 6px;
   overflow: auto;
   border: 2px solid rgba(33, 244, 255, 0.4);
   background: rgba(5, 5, 10, 0.94);
+  box-shadow: 4px 4px 0 rgba(255, 43, 214, 0.45), 0 12px 30px rgba(0, 0, 0, 0.65);
   padding: 8px;
 }
 

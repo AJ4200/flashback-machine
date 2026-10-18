@@ -261,7 +261,7 @@ export function MemoryPanel({
           <strong>{notice}</strong>
         </div>
 
-        <details className="memory-section memory-terminal">
+        <details className="memory-section memory-terminal" open>
           <summary className="memory-section-summary">
             <span className="memory-section-title">
               <strong>live terminal</strong>
@@ -345,7 +345,7 @@ export function MemoryPanel({
                 <div className={`controller-binding ${activeControlIds.includes(binding.id) ? "is-active" : ""}`} key={binding.id}>
                   <strong>{binding.label}</strong>
                   <button
-                    className="control-map-button"
+                    className={`control-map-button ${keyboardCaptureAction === binding.id ? "is-capturing" : ""}`}
                     aria-label={`Change keyboard mapping for ${binding.label}`}
                     onClick={() => setKeyboardCaptureAction((current) => (current === binding.id ? null : binding.id))}
                     type="button"

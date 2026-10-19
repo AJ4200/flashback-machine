@@ -317,6 +317,7 @@ export function FlashBackMachineArcade() {
             saveSlot={saveSlot}
             saveSlots={saveSlots}
             selectedGame={selectedGame}
+            stageRef={stageRef}
             switchMode={switchMode}
             volume={volume}
           />

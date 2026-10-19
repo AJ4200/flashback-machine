@@ -53,6 +53,7 @@ export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, pla
             </div>
           ) : null}
         </div>
+        <div className="memory-window-layer" />
       </div>
 
       {selectedGame ? (

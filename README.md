@@ -17,6 +17,7 @@ Made with love by aj4200.
 - Pixel arcade UI with boot splash, fake loader, CRT scanlines, neon colors, and transitions
 - Searchable game cabinet generated from each emulator catalog
 - Collapsible emulator selector, live startup terminal, and in-screen loading/error feedback
+- Detachable memory-panel sections with draggable floating windows that stay visible over fullscreen gameplay
 - Switching emulator systems shuts down the previously active player runtime
 - Per-emulator keyboard and Gamepad API mappings with plug-and-play standard-layout Xbox 360 controller defaults
 - Load supported game files directly from your device without adding them to the hosted catalog

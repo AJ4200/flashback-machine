@@ -20,7 +20,7 @@ import { useSegaPlayer } from "../../_hooks/use-sega-player";
 import { detectGameMode, formatBytes, isSupportedGameFile, titleFor } from "../../_lib/games";
 import { OFFLINE_PROMPT_DISMISSED_KEY } from "../../_lib/constants";
 import type { Game, GameMode } from "../../_lib/types";
-import { BootOverlay } from "./boot-overlay";
+import { BootOverlay, type BootLine } from "./boot-overlay";
 import { Cabinet } from "./cabinet";
 import { GameLibrary } from "./game-library";
 import { LoveBadge } from "./love-badge";
@@ -159,12 +159,52 @@ export function FlashBackMachineArcade() {
       : mode === "sega"
       ? segaReady
       : pcEngineReady;
-  const bootLines = [
-    `FLASH / RUFFLE: ${ruffleReady ? "READY" : /error|blocked|failed/i.test(flashPlayerStatus) ? "ERROR" : "LOADING"}`,
-    `DOS / JS-DOS: ${dosReady ? "READY" : /error|blocked|failed/i.test(dosPlayerStatus) ? "ERROR" : "LOADING"}`,
-    "RETROARCH NES / MAME / SEGA / PS1 / J2ME / PC ENGINE / GAME BOY: LOAD ON SELECT",
-    "PLAY! PLAYSTATION 2: LOAD ON SELECT",
-    "KEYBOARD + USB / BLUETOOTH GAMEPAD: PER-SYSTEM MAPPINGS",
+  const bootLines: BootLine[] = [
+    {
+      id: "ruffle",
+      parts: [
+        { text: "FLASH / RUFFLE", className: "boot-core--ruffle" },
+        { text: `: ${ruffleReady ? "READY" : /error|blocked|failed/i.test(flashPlayerStatus) ? "ERROR" : "LOADING"}` },
+      ],
+    },
+    {
+      id: "js-dos",
+      parts: [
+        { text: "DOS / JS-DOS", className: "boot-core--js-dos" },
+        { text: `: ${dosReady ? "READY" : /error|blocked|failed/i.test(dosPlayerStatus) ? "ERROR" : "LOADING"}` },
+      ],
+    },
+    {
+      id: "retroarch",
+      parts: [
+        { text: "RETROARCH " },
+        { text: "NES", className: "boot-core--nes" },
+        { text: " / " },
+        { text: "MAME", className: "boot-core--mame" },
+        { text: " / " },
+        { text: "SEGA", className: "boot-core--sega" },
+        { text: " / " },
+        { text: "PS1", className: "boot-core--ps1" },
+        { text: " / " },
+        { text: "J2ME", className: "boot-core--j2me" },
+        { text: " / " },
+        { text: "PC ENGINE", className: "boot-core--pc-engine" },
+        { text: " / " },
+        { text: "GAME BOY", className: "boot-core--game-boy" },
+        { text: ": LOAD ON SELECT" },
+      ],
+    },
+    {
+      id: "playstation-2",
+      parts: [
+        { text: "PLAY! PLAYSTATION 2", className: "boot-core--ps2" },
+        { text: ": LOAD ON SELECT" },
+      ],
+    },
+    {
+      id: "input",
+      parts: [{ text: "KEYBOARD + USB / BLUETOOTH GAMEPAD: PER-SYSTEM MAPPINGS" }],
+    },
   ];
 
   const appendActivity = useCallback((message: string, level: ActivityLine["level"] = "info") => {

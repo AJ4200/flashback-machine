@@ -1,5 +1,15 @@
+type BootLinePart = {
+  text: string;
+  className?: string;
+};
+
+export type BootLine = {
+  id: string;
+  parts: BootLinePart[];
+};
+
 type BootOverlayProps = {
-  bootLines: string[];
+  bootLines: BootLine[];
   bootProgress: number;
   bootReady: boolean;
   bootStarted: boolean;
@@ -16,7 +26,13 @@ export function BootOverlay({ bootLines, bootProgress, bootReady, bootStarted, o
         </div>
         <div className="boot-lines">
           {bootLines.slice(0, Math.max(1, Math.ceil((bootProgress / 100) * bootLines.length))).map((line) => (
-            <span key={line}>{line}</span>
+            <span key={line.id}>
+              {line.parts.map((part, index) => (
+                <span className={part.className} key={`${line.id}-${index}`}>
+                  {part.text}
+                </span>
+              ))}
+            </span>
           ))}
         </div>
         <div className="boot-meter">

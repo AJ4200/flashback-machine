@@ -2665,9 +2665,49 @@ h1 {
   font-size: 1.35rem;
 }
 
-.boot-lines span::before {
+.boot-lines > span::before {
   color: var(--lime);
   content: "> ";
+}
+
+.boot-core--ruffle {
+  color: #ff865e;
+}
+
+.boot-core--js-dos {
+  color: var(--lime);
+}
+
+.boot-core--nes {
+  color: var(--cyan);
+}
+
+.boot-core--mame {
+  color: var(--magenta);
+}
+
+.boot-core--sega {
+  color: var(--yellow);
+}
+
+.boot-core--ps1 {
+  color: #a78bfa;
+}
+
+.boot-core--j2me {
+  color: #7dffb3;
+}
+
+.boot-core--pc-engine {
+  color: #ff70a6;
+}
+
+.boot-core--game-boy {
+  color: #80aaff;
+}
+
+.boot-core--ps2 {
+  color: #ff9f1c;
 }
 
 .boot-meter {

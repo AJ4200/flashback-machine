@@ -147,7 +147,7 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
           const Module = {
             noInitialRun: true,
             canvas,
-            arguments: ["-v", contentPath],
+            arguments: currentCore === "squirreljme" ? ["-jar", contentPath] : ["-v", contentPath],
             locateFile: (path: string) => `${PUBLIC_CORE_PATH}/${path}`,
             print: captureOutput,
             printErr: captureOutput,

@@ -90,6 +90,7 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
     }
 
     let cancelled = false;
+    let runtimeErrorListener: ((event: ErrorEvent) => void) | undefined;
     const mount = mountRef.current;
     mount.innerHTML = "";
 
@@ -157,6 +158,21 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
               }
             },
           };
+          if (currentCore === "squirreljme") {
+            runtimeErrorListener = (event) => {
+              if (!event.filename.includes("squirreljme_libretro.wasm")) {
+                return;
+              }
+
+              loadFailure ??= event.message || "unknown WebAssembly runtime error";
+              if (!cancelled) {
+                setReady(false);
+                setPlayerStatus(`${label} runtime error: ${loadFailure}`);
+                setNotice(`${label.toUpperCase()} runtime error`);
+              }
+            };
+            window.addEventListener("error", runtimeErrorListener);
+          }
 
           try {
             const createCore = await loadCore(currentCore);
@@ -203,6 +219,11 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
             setNotice(`${selectedGame.title} inserted (${coreLabel(currentCore)})`);
             return;
           } catch (error) {
+            if (runtimeErrorListener) {
+              window.removeEventListener("error", runtimeErrorListener);
+              runtimeErrorListener = undefined;
+            }
+
             if (moduleInstance.current === emulator) {
               moduleInstance.current = null;
               stopRuntime(emulator, currentCore);
@@ -239,6 +260,10 @@ export function useLibretroPlayer({ core, label, mode, mountRef, reloadToken, se
 
     return () => {
       cancelled = true;
+      if (runtimeErrorListener) {
+        window.removeEventListener("error", runtimeErrorListener);
+      }
+
       const runtime = moduleInstance.current;
       moduleInstance.current = null;
       stopRuntime(runtime, label);

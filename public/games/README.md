@@ -4,6 +4,7 @@ Each emulator has its own folder and catalog file. Add game files to the matchin
 
 - Flash: `public/games/flash/flashlist.json`
 - Game Boy: `public/games/gba/gbalist.json`
+- Java ME (J2ME): `public/games/j2me/j2melist.json`
 - JS DOS: `public/games/jsdos/jsdoslist.json`
 - MAME: `public/games/mame/mamelist.json`
 - NES: `public/games/nes/neslist.json`

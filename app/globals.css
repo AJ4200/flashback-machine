@@ -572,6 +572,58 @@ h1 {
   user-select: none;
 }
 
+.memory-floating-window {
+  min-width: 280px;
+  min-height: 120px;
+  resize: both;
+  animation: memory-window-pop 160ms ease-out;
+}
+
+.memory-floating-window::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 3px);
+}
+
+.memory-floating-window-bar::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  background: var(--lime);
+  box-shadow: 0 0 8px var(--lime);
+  animation: memory-window-led 1.6s steps(2) infinite;
+}
+
+.memory-floating-window.is-dragging {
+  opacity: 0.92;
+  box-shadow: 0 0 0 3px var(--ink), 0 0 38px rgba(184, 255, 22, 0.5), 12px 12px 0 rgba(255, 43, 214, 0.45);
+}
+
+.memory-floating-window-body {
+  padding: 4px;
+}
+
+.memory-floating-window-body details.memory-section > :not(summary) {
+  max-width: 100%;
+}
+
+@keyframes memory-window-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes memory-window-led {
+  50% {
+    opacity: 0.35;
+  }
+}
+
 .memory-floating-window-bar:active,
 .memory-floating-window.is-dragging .memory-floating-window-bar {
   cursor: grabbing;

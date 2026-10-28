@@ -138,6 +138,7 @@ const MODE_ORDER: GameMode[] = ["flash", "gba", "jsdos", "mame", "nes", "pcengin
 
 type SectionControls = {
   canDetach: boolean;
+  floating: boolean;
   detach: () => void;
   summaryDragHandlers: {
     onPointerDown: (event: ReactPointerEvent<HTMLElement>) => void;
@@ -291,6 +292,7 @@ function DetachableMemorySection({ children, label, order, portalHost, nextZInde
 
   const controls: SectionControls = {
     canDetach: Boolean(portalHost),
+    floating: detached,
     detach: () => detach(),
     summaryDragHandlers: {
       onPointerDown: startSummaryDrag,
@@ -577,7 +579,7 @@ export function MemoryPanel({
 
         <DetachableMemorySection label="controller setup" order={1} portalHost={floatingWindowHost} nextZIndex={raiseFloatingWindow}>
           {(controls) => (
-            <details className="controller-mapping memory-section">
+            <details className="controller-mapping memory-section" open={controls.floating}>
           <DetachableSectionSummary className="controller-card-summary" controls={controls}>
             <span className="controller-card-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" focusable="false">
@@ -667,12 +669,18 @@ export function MemoryPanel({
 
         <DetachableMemorySection label="save slots" order={2} portalHost={floatingWindowHost} nextZIndex={raiseFloatingWindow}>
           {(controls) => (
-            <details className="memory-section">
+            <details className="memory-section" open={controls.floating}>
               <DetachableSectionSummary className="memory-section-summary" controls={controls}>
                 <span className="memory-section-title"><strong>save slots</strong><small>game progress</small></span>
                 <span className="memory-section-toggle" aria-hidden="true" />
               </DetachableSectionSummary>
           <div className="save-slots">
+            {saveSlots.length === 0 ? (
+              <div className="system-readout">
+                <span>save slots</span>
+                <strong>load a game first</strong>
+              </div>
+            ) : null}
             {saveSlots.map((slot) => (
               <div className="save-slot" key={slot.id}>
                 <div>
@@ -693,7 +701,7 @@ export function MemoryPanel({
 
         <DetachableMemorySection label="auto memory" order={3} portalHost={floatingWindowHost} nextZIndex={raiseFloatingWindow}>
           {(controls) => (
-            <details className="memory-section">
+            <details className="memory-section" open={controls.floating}>
               <DetachableSectionSummary className="memory-section-summary" controls={controls}>
                 <span className="memory-section-title"><strong>auto memory</strong><small>current game data</small></span>
                 <span className="memory-section-toggle" aria-hidden="true" />
@@ -708,7 +716,7 @@ export function MemoryPanel({
 
         <DetachableMemorySection label="audio controls" order={4} portalHost={floatingWindowHost} nextZIndex={raiseFloatingWindow}>
           {(controls) => (
-            <details className="memory-section">
+            <details className="memory-section" open={controls.floating}>
               <DetachableSectionSummary className="memory-section-summary" controls={controls}>
                 <span className="memory-section-title"><strong>audio controls</strong><small>volume and sound</small></span>
                 <span className="memory-section-toggle" aria-hidden="true" />
@@ -737,7 +745,7 @@ export function MemoryPanel({
 
         <DetachableMemorySection label="offline deck" order={5} portalHost={floatingWindowHost} nextZIndex={raiseFloatingWindow}>
           {(controls) => (
-            <details className="memory-section">
+            <details className="memory-section" open={controls.floating}>
               <DetachableSectionSummary className="memory-section-summary" controls={controls}>
                 <span className="memory-section-title"><strong>offline deck</strong><small>install and cache</small></span>
                 <span className="memory-section-toggle" aria-hidden="true" />

@@ -6,6 +6,8 @@ import { useAudioControls } from "../../_hooks/use-audio-controls";
 import { useBootSequence } from "../../_hooks/use-boot-sequence";
 import { useGbaPlayer } from "../../_hooks/use-gba-player";
 import { useGameCatalog } from "../../_hooks/use-game-catalog";
+import { useJ2mePlayer } from "../../_hooks/use-j2me-player";
+import { usePs1Player } from "../../_hooks/use-ps1-player";
 import { useJsDosPlayer } from "../../_hooks/use-js-dos-player";
 import { useMamePlayer } from "../../_hooks/use-mame-player";
 import { useNesPlayer } from "../../_hooks/use-nes-player";
@@ -15,7 +17,7 @@ import { usePwa } from "../../_hooks/use-pwa";
 import { useRufflePlayer } from "../../_hooks/use-ruffle-player";
 import { useSaveSlots } from "../../_hooks/use-save-slots";
 import { useSegaPlayer } from "../../_hooks/use-sega-player";
-import { formatBytes, isSupportedGameFile, titleFor } from "../../_lib/games";
+import { detectGameMode, formatBytes, isSupportedGameFile, titleFor } from "../../_lib/games";
 import { OFFLINE_PROMPT_DISMISSED_KEY } from "../../_lib/constants";
 import type { Game, GameMode } from "../../_lib/types";
 import { BootOverlay } from "./boot-overlay";
@@ -99,6 +101,18 @@ export function FlashBackMachineArcade() {
     selectedGame: playerGame,
     setNotice,
   });
+  const { playerStatus: ps1PlayerStatus, ps1Ready } = usePs1Player({
+    mountRef,
+    reloadToken,
+    selectedGame: playerGame,
+    setNotice,
+  });
+  const { j2meReady, playerStatus: j2mePlayerStatus } = useJ2mePlayer({
+    mountRef,
+    reloadToken,
+    selectedGame: playerGame,
+    setNotice,
+  });
   const { cacheBusy, cacheLibrary, cacheSelectedGame, canInstall, installPwa, pwaStatus } = usePwa(games, selectedGame, mode);
   const { clearSlot, loadSlot, saveSlot, saveSlots } = useSaveSlots({
     onReload: reloadGame,
@@ -118,6 +132,10 @@ export function FlashBackMachineArcade() {
       ? nesPlayerStatus
       : mode === "ps2"
       ? ps2PlayerStatus
+      : mode === "ps1"
+      ? ps1PlayerStatus
+      : mode === "j2me"
+      ? j2mePlayerStatus
       : mode === "sega"
       ? segaPlayerStatus
       : pcEnginePlayerStatus;
@@ -134,13 +152,17 @@ export function FlashBackMachineArcade() {
       ? nesReady
       : mode === "ps2"
       ? ps2Ready
+      : mode === "ps1"
+      ? ps1Ready
+      : mode === "j2me"
+      ? j2meReady
       : mode === "sega"
       ? segaReady
       : pcEngineReady;
   const bootLines = [
     `FLASH / RUFFLE: ${ruffleReady ? "READY" : /error|blocked|failed/i.test(flashPlayerStatus) ? "ERROR" : "LOADING"}`,
     `DOS / JS-DOS: ${dosReady ? "READY" : /error|blocked|failed/i.test(dosPlayerStatus) ? "ERROR" : "LOADING"}`,
-    "RETROARCH NES / MAME / SEGA / PC ENGINE / GAME BOY: LOAD ON SELECT",
+    "RETROARCH NES / MAME / SEGA / PS1 / J2ME / PC ENGINE / GAME BOY: LOAD ON SELECT",
     "PLAY! PLAYSTATION 2: LOAD ON SELECT",
     "KEYBOARD + USB / BLUETOOTH GAMEPAD: PER-SYSTEM MAPPINGS",
   ];
@@ -215,23 +237,27 @@ export function FlashBackMachineArcade() {
   };
 
   const loadLocalGame = (file: File) => {
-    if (!isSupportedGameFile(mode, file.name)) {
-      setNotice(`${file.name} is not a supported ${mode.toUpperCase()} file`);
+    const targetMode = detectGameMode(file.name, mode, file.size);
+    if (!targetMode) {
+      setNotice(`${file.name} is not a supported game file`);
       return;
     }
 
     const path = URL.createObjectURL(file);
     setLocalGame({
       file: file.name,
-      title: titleFor(file.name, mode),
+      title: titleFor(file.name, targetMode),
       path,
       flavor: "LOCAL FILE",
-      mode,
+      mode: targetMode,
       size: formatBytes(file.size),
     });
+    if (targetMode !== mode) {
+      setMode(targetMode);
+    }
     selectGame("");
     reloadGame();
-    setNotice(`${file.name} loaded from your device`);
+    setNotice(`${file.name} loaded from your device (${targetMode.toUpperCase()} core)`);
   };
 
   const switchMode = (nextMode: GameMode) => {

@@ -1,4 +1,4 @@
-const VERSION = "flashback-machine-v1";
+const VERSION = "flashback-machine-v2";
 const SHELL_CACHE = `${VERSION}:shell`;
 const GAME_CACHE = `${VERSION}:games`;
 const RUNTIME_CACHE = `${VERSION}:runtime`;
@@ -26,6 +26,12 @@ const SHELL_ASSETS = [
   "/emulators/retroarch/genesis_plus_gx_libretro.wasm",
   "/emulators/retroarch/mednafen_pce_fast_libretro.js",
   "/emulators/retroarch/mednafen_pce_fast_libretro.wasm",
+  "/games/ps1/ps1list.json",
+  "/games/j2me/j2melist.json",
+  "/emulators/retroarch/pcsx_rearmed_libretro.js",
+  "/emulators/retroarch/pcsx_rearmed_libretro.wasm",
+  "/emulators/retroarch/squirreljme_libretro.js",
+  "/emulators/retroarch/squirreljme_libretro.wasm",
   "/emulators/retroarch/mgba_libretro.js",
   "/emulators/retroarch/mgba_libretro.wasm",
   "/emulators/retroarch/mame2000_libretro.js",

@@ -24,6 +24,8 @@ function coreLabel(core: string) {
     mame2003: "MAME 2003",
     mame2003_plus: "MAME 2003-Plus",
     mednafen_pce_fast: "Mednafen PCE Fast",
+    pcsx_rearmed: "PCSX ReARMed",
+    squirreljme: "SquirrelJME",
     nestopia: "Nestopia",
     quicknes: "QuickNES",
   };

@@ -2,6 +2,8 @@ import type { GameMode } from "./types";
 
 export const FLASH_CATALOG_PATH = "/games/flash/flashlist.json";
 export const GBA_CATALOG_PATH = "/games/gba/gbalist.json";
+export const J2ME_CATALOG_PATH = "/games/j2me/j2melist.json";
+export const PS1_CATALOG_PATH = "/games/ps1/ps1list.json";
 export const JSDOS_CATALOG_PATH = "/games/jsdos/jsdoslist.json";
 export const MAME_CATALOG_PATH = "/games/mame/mamelist.json";
 export const NES_CATALOG_PATH = "/games/nes/neslist.json";
@@ -15,6 +17,10 @@ export const gameCatalogPath = (mode: GameMode) => {
       return FLASH_CATALOG_PATH;
     case "gba":
       return GBA_CATALOG_PATH;
+    case "j2me":
+      return J2ME_CATALOG_PATH;
+    case "ps1":
+      return PS1_CATALOG_PATH;
     case "jsdos":
       return JSDOS_CATALOG_PATH;
     case "mame":
@@ -42,6 +48,10 @@ export const supportedGameExtensions = (mode: GameMode) => {
       return [/\.swf$/i];
     case "gba":
       return [/\.(gba|gbc|gb)$/i];
+    case "j2me":
+      return [/\.jar$/i, /\.jad$/i];
+    case "ps1":
+      return [/\.cue$/i, /\.bin$/i, /\.iso$/i, /\.img$/i, /\.chd$/i, /\.pbp$/i, /\.m3u$/i];
     case "jsdos":
       return [/\.jsdos$/i];
     case "mame":
@@ -74,7 +84,7 @@ export const gameFileAccept = (mode: GameMode) =>
 
 export const slugFor = (value: string) =>
   value
-    .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|pce|md|gen|smd|bin|sms|gg|sg|cue|iso|chd|cso|isz|elf|gba|gbc|gb)$/i, "")
+    .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|pce|md|gen|smd|bin|sms|gg|sg|cue|iso|chd|cso|isz|elf|gba|gbc|gb|jar|jad|img|pbp|m3u)$/i, "")
     .replace(/[^a-z0-9]+/gi, "-")
     .replace(/^-|-$/g, "")
     .toLowerCase();
@@ -87,6 +97,10 @@ export const titleFor = (file: string, mode: GameMode) => {
       ? /\.jsdos$/i
       : mode === "mame"
       ? /\.(zip|7z|chd)$/i
+      : mode === "j2me"
+      ? /\.(jar|jad)$/i
+      : mode === "ps1"
+      ? /\.(cue|bin|iso|img|chd|pbp|m3u)$/i
       : mode === "ps2"
       ? /\.(iso|cso|chd|isz|bin|elf)$/i
       : mode === "gba"
@@ -98,6 +112,28 @@ export const titleFor = (file: string, mode: GameMode) => {
       : /\.(nes|fds|unf|unif)$/i;
 
   return file.replace(extension, "");
+};
+
+const DETECTION_ORDER: GameMode[] = ["flash", "jsdos", "j2me", "gba", "nes", "pcengine", "sega", "ps1", "ps2", "mame"];
+const PS2_MIN_BYTES = 800 * 1024 * 1024;
+
+// Picks the emulator that can run a file. The current mode wins when it supports the file,
+// except for ambiguous disc images, where size separates PS1 CDs from PS2 DVDs.
+export const detectGameMode = (file: string, currentMode: GameMode, size?: number): GameMode | undefined => {
+  const candidates = DETECTION_ORDER.filter((mode) => isSupportedGameFile(mode, file));
+  if (candidates.length === 0) {
+    return undefined;
+  }
+
+  if (candidates.includes(currentMode) && (currentMode === "sega" || currentMode === "mame")) {
+    return currentMode;
+  }
+
+  if (typeof size === "number" && candidates.includes("ps1") && candidates.includes("ps2")) {
+    return size >= PS2_MIN_BYTES ? "ps2" : "ps1";
+  }
+
+  return candidates.includes(currentMode) ? currentMode : candidates[0];
 };
 
 export const formatBytes = (bytes: number) => {

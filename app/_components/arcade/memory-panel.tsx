@@ -96,6 +96,28 @@ const MODE_BUTTONS = {
     ),
     status: "beta",
   },
+  ps1: {
+    label: "ps1",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" fill="none" />
+        <circle cx="12" cy="12" r="2" fill="currentColor" />
+        <path d="M12 4v3M12 17v3M4 12h3M17 12h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    ),
+    status: "new",
+  },
+  j2me: {
+    label: "java j2me",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <rect x="7" y="2.5" width="10" height="19" rx="2" stroke="currentColor" strokeWidth="2" fill="none" />
+        <rect x="9" y="5" width="6" height="6" stroke="currentColor" strokeWidth="1.6" fill="none" />
+        <path d="M9 15h6M9 18h6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    ),
+    status: "new",
+  },
   ps2: {
     label: "ps2",
     icon: (
@@ -134,7 +156,7 @@ const MODE_BUTTONS = {
   },
 } satisfies Record<GameMode, { label: string; icon: ReactNode; status: string | null }>;
 
-const MODE_ORDER: GameMode[] = ["flash", "gba", "jsdos", "mame", "nes", "pcengine", "ps2", "sega"];
+const MODE_ORDER: GameMode[] = ["flash", "gba", "j2me", "jsdos", "mame", "nes", "pcengine", "ps1", "ps2", "sega"];
 
 type SectionControls = {
   canDetach: boolean;
@@ -502,7 +524,7 @@ export function MemoryPanel({
           </button>
           <label className={`local-rom-button ${isLocalGame ? "has-local-rom" : ""}`}>
             <input
-              accept={gameFileAccept(mode)}
+              accept={MODE_ORDER.map(gameFileAccept).join(",")}
               onChange={(event) => {
                 const file = event.currentTarget.files?.[0];
                 if (file) {

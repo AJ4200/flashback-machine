@@ -15,7 +15,7 @@ type GameLibraryProps = {
 };
 
 export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery, isLoading, totalFiles, supportedCount, unsupportedFiles }: GameLibraryProps) {
-  const libraryName = mode === "flash" ? "Flash" : mode === "gba" ? "Game Boy" : mode === "jsdos" ? "JS DOS" : mode === "sega" ? "Sega" : mode === "pcengine" ? "PC Engine" : mode === "ps2" ? "PS2" : mode.toUpperCase();
+  const libraryName = mode === "flash" ? "Flash" : mode === "gba" ? "Game Boy" : mode === "jsdos" ? "JS DOS" : mode === "sega" ? "Sega" : mode === "pcengine" ? "PC Engine" : mode === "ps2" ? "PS2" : mode === "ps1" ? "PS1" : mode === "j2me" ? "Java" : mode.toUpperCase();
   const searchPlaceholder = mode === "flash" ? "game title" : `${libraryName} title`;
 
   return (
@@ -55,6 +55,10 @@ export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGam
                 "Add Game Boy, Game Boy Color, or Game Boy Advance .gb, .gbc, or .gba ROMs to public/games/gba and list them in gbalist.json"
               ) : mode === "sega" ? (
                 "Add Sega .md, .gen, .smd, .bin, .sms, .gg, .cue, .iso or .chd files to public/games/sega and list them in segalist.json"
+              ) : mode === "ps1" ? (
+                "Add PS1 .cue/.bin, .iso, .chd, .pbp or .m3u images to public/games/ps1 and list them in ps1list.json"
+              ) : mode === "j2me" ? (
+                "Add Java phone games (.jar or .jad) to public/games/j2me and list them in j2melist.json"
               ) : mode === "pcengine" ? (
                 "Add PC Engine .pce ROMs to public/games/pcengine and list them in pcenginelist.json"
               ) : (

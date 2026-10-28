@@ -13,7 +13,7 @@ type CabinetProps = {
 };
 
 export function Cabinet({ gameCount, mode, mountRef, onFullscreen, onReload, playerStatus, selectedGame, stageRef }: CabinetProps) {
-  const engineName = mode === "flash" ? "Flash" : mode === "gba" ? "Game Boy" : mode === "jsdos" ? "DOS" : mode === "sega" ? "SEGA" : mode === "pcengine" ? "PC Engine" : mode === "ps2" ? "PS2" : mode.toUpperCase();
+  const engineName = mode === "flash" ? "Flash" : mode === "gba" ? "Game Boy" : mode === "jsdos" ? "DOS" : mode === "sega" ? "SEGA" : mode === "pcengine" ? "PC Engine" : mode === "ps2" ? "PS2" : mode === "ps1" ? "PS1" : mode === "j2me" ? "Java" : mode.toUpperCase();
   const isLoadingError = /error|failed|unavailable|blocked/i.test(playerStatus);
 
   return (

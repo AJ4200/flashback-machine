@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { installAudioBus, setAudioBusLevel } from "../_lib/audio-bus";
 import { AUDIO_MUTED_KEY, AUDIO_VOLUME_KEY } from "../_lib/constants";
 
 const DEFAULT_VOLUME = 70;
@@ -23,6 +24,16 @@ export function useAudioControls() {
   }, []);
 
   const effectiveVolume = useMemo(() => (muted ? 0 : volume), [muted, volume]);
+
+  useEffect(() => {
+    installAudioBus();
+    setAudioBusLevel(effectiveVolume / 100);
+
+    // Contexts created after the slider moves (e.g. a freshly booted core) pick up the level on creation;
+    // this re-applies it in case a core resumes or swaps its context.
+    const timer = window.setInterval(() => setAudioBusLevel(effectiveVolume / 100), 1500);
+    return () => window.clearInterval(timer);
+  }, [effectiveVolume]);
 
   const setVolume = (nextVolume: number) => {
     const clamped = clampVolume(nextVolume);

@@ -9,9 +9,27 @@ export type ControllerBinding = {
   label: string;
   keyboardCode: string;
   gamepadButton: number;
+  // Key code sent to the emulator when it differs from the physical key
+  output?: string;
 };
 
-const GAMEPAD_MAPPINGS_KEY = "flashback-machine:controller-mappings";
+export function keyLabel(code: string) {
+  return code.replace("Arrow", "").replace(/^(Key|Digit)/, "").replace("Numpad", "Num ");
+}
+
+function outputCode(binding: ControllerBinding) {
+  return binding.output ?? binding.keyboardCode;
+}
+
+function digitBindings(): ControllerBinding[] {
+  return Array.from({ length: 10 }, (_, index) => {
+    const digit = String((index + 1) % 10);
+    return { id: `digit${digit}`, label: digit, keyboardCode: `Digit${digit}`, gamepadButton: -1 };
+  });
+}
+
+const GAMEPAD_MAPPINGS_KEY = "flashback-machine:controller-mappings-v2";
+const LEGACY_GAMEPAD_MAPPINGS_KEY = "flashback-machine:controller-mappings";
 const forwardedKeyboardEvents = new WeakSet<KeyboardEvent>();
 
 function createDefaultMappings(): Record<GameMode, ControllerBinding[]> {
@@ -85,10 +103,11 @@ function createDefaultMappings(): Record<GameMode, ControllerBinding[]> {
     j2me: [
       ...directions,
       { id: "fire", label: "fire", keyboardCode: "Enter", gamepadButton: 0 },
-      { id: "softleft", label: "left soft", keyboardCode: "KeyZ", gamepadButton: 4 },
-      { id: "softright", label: "right soft", keyboardCode: "KeyX", gamepadButton: 5 },
-      { id: "star", label: "*", keyboardCode: "KeyQ", gamepadButton: 2 },
-      { id: "pound", label: "#", keyboardCode: "KeyW", gamepadButton: 3 },
+      { id: "softleft", label: "left soft", keyboardCode: "KeyQ", gamepadButton: 4, output: "F1" },
+      { id: "softright", label: "right soft", keyboardCode: "KeyW", gamepadButton: 5, output: "F2" },
+      { id: "star", label: "*", keyboardCode: "KeyE", gamepadButton: 2, output: "NumpadMultiply" },
+      { id: "pound", label: "#", keyboardCode: "KeyR", gamepadButton: 3, output: "NumpadDivide" },
+      ...digitBindings(),
     ],
     ps1: [
       ...directions,
@@ -124,6 +143,12 @@ function keyFromCode(code: string) {
   if (code.startsWith("Digit")) {
     return code.slice(5);
   }
+  if (code === "NumpadMultiply") {
+    return "*";
+  }
+  if (code === "NumpadDivide") {
+    return "/";
+  }
   if (code === "Space") {
     return " ";
   }
@@ -151,6 +176,10 @@ function legacyKeyCode(code: string) {
     ControlRight: 17,
     Enter: 13,
     Escape: 27,
+    F1: 112,
+    F2: 113,
+    NumpadDivide: 111,
+    NumpadMultiply: 106,
     NumpadEnter: 13,
     ShiftLeft: 16,
     ShiftRight: 16,
@@ -223,6 +252,10 @@ function dispatchKey(type: "keydown" | "keyup", code: string, target: HTMLElemen
 function buttonLabel(index: number) {
   const labels = ["A / Cross", "B / Circle", "X / Square", "Y / Triangle", "LB / L1", "RB / R1", "LT / L2", "RT / R2", "View / Select", "Menu / Start", "Left stick", "Right stick", "D-pad up", "D-pad down", "D-pad left", "D-pad right"];
 
+  if (index < 0) {
+    return "unassigned";
+  }
+
   return labels[index] ?? `button ${index + 1}`;
 }
 
@@ -236,8 +269,9 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
   useEffect(() => {
     try {
       const serialized = window.localStorage.getItem(GAMEPAD_MAPPINGS_KEY);
-      if (serialized) {
-        const saved: unknown = JSON.parse(serialized);
+      const legacySerialized = serialized ? null : window.localStorage.getItem(LEGACY_GAMEPAD_MAPPINGS_KEY);
+      if (serialized || legacySerialized) {
+        const saved: unknown = JSON.parse(serialized ?? legacySerialized ?? "");
         if (!isRecord(saved)) {
           throw new Error("Saved controller mappings must be an object");
         }
@@ -245,7 +279,7 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
         setMappings((defaults) => {
           const next = { ...defaults };
           for (const system of Object.keys(defaults) as GameMode[]) {
-            const savedSystem = saved[system];
+            const savedSystem = legacySerialized && system === "j2me" ? undefined : saved[system];
             if (!isRecord(savedSystem)) {
               continue;
             }
@@ -344,11 +378,12 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
     let previousActiveSignature = "";
     const pressedKeys = new Set<string>();
     const pressedKeyboardCodes = new Set<string>();
-    const forwardedPhysicalKeys = new Set<string>();
+    const forwardedPhysicalKeys = new Map<string, string>();
+    const isForwardedOutput = (code: string) => [...forwardedPhysicalKeys.values()].includes(code);
 
     const releaseKeys = () => {
       const target = getInputTarget(mountRef.current);
-      new Set([...pressedKeys, ...forwardedPhysicalKeys]).forEach((code) => dispatchKey("keyup", code, target));
+      new Set([...pressedKeys, ...forwardedPhysicalKeys.values()]).forEach((code) => dispatchKey("keyup", code, target));
       pressedKeys.clear();
       forwardedPhysicalKeys.clear();
     };
@@ -359,12 +394,13 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
       }
 
       pressedKeyboardCodes.add(event.code);
+      const binding = activeMappings.find((item) => item.keyboardCode === event.code);
       if (
         !enabled ||
         captureAction ||
         isEditingText() ||
         document.activeElement?.closest(".control-map-button.is-capturing") ||
-        !activeMappings.some((binding) => binding.keyboardCode === event.code)
+        !binding
       ) {
         return;
       }
@@ -374,13 +410,14 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
         return;
       }
 
+      const output = outputCode(binding);
       event.preventDefault();
       event.stopImmediatePropagation();
-      forwardedPhysicalKeys.add(event.code);
       target.focus({ preventScroll: true });
-      if (!pressedKeys.has(event.code)) {
-        dispatchKey("keydown", event.code, target);
+      if (!pressedKeys.has(output)) {
+        dispatchKey("keydown", output, target);
       }
+      forwardedPhysicalKeys.set(event.code, output);
     };
     const trackKeyUp = (event: KeyboardEvent) => {
       if (forwardedKeyboardEvents.has(event)) {
@@ -388,16 +425,18 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
       }
 
       pressedKeyboardCodes.delete(event.code);
+      const binding = activeMappings.find((item) => item.keyboardCode === event.code);
       const shouldForward =
         forwardedPhysicalKeys.has(event.code) ||
         (enabled &&
           !captureAction &&
           !isEditingText() &&
           !document.activeElement?.closest(".control-map-button.is-capturing") &&
-          activeMappings.some((binding) => binding.keyboardCode === event.code));
+          binding);
       if (!shouldForward) {
         return;
       }
+      const output = forwardedPhysicalKeys.get(event.code) ?? (binding ? outputCode(binding) : event.code);
       forwardedPhysicalKeys.delete(event.code);
 
       const target = getInputTarget(mountRef.current);
@@ -407,8 +446,8 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
 
       event.preventDefault();
       event.stopImmediatePropagation();
-      if (!pressedKeys.has(event.code)) {
-        dispatchKey("keyup", event.code, target);
+      if (!pressedKeys.has(output)) {
+        dispatchKey("keyup", output, target);
       }
     };
 
@@ -455,7 +494,7 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
           activeControls.push(binding.id);
         }
         if (enabled && gamepadPressed && !captureAction) {
-          nextPressedKeys.add(binding.keyboardCode);
+          nextPressedKeys.add(outputCode(binding));
         }
       }
 
@@ -467,7 +506,7 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
 
       pressedKeys.forEach((code) => {
         if (!nextPressedKeys.has(code)) {
-          if (!forwardedPhysicalKeys.has(code)) {
+          if (!isForwardedOutput(code)) {
             dispatchKey("keyup", code, target);
           }
           pressedKeys.delete(code);
@@ -475,7 +514,7 @@ export function useGamepadControls(mode: GameMode, enabled: boolean, mountRef: R
       });
       nextPressedKeys.forEach((code) => {
         if (!pressedKeys.has(code)) {
-          if (!forwardedPhysicalKeys.has(code)) {
+          if (!isForwardedOutput(code)) {
             if (enabled && target) {
               target.focus({ preventScroll: true });
             }

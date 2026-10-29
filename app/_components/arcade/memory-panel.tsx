@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
-import { useGamepadControls } from "../../_hooks/use-gamepad-controls";
+import { keyLabel, useGamepadControls } from "../../_hooks/use-gamepad-controls";
 import { gameFileAccept, slugFor } from "../../_lib/games";
 import type { Game, GameMode, SaveSlot } from "../../_lib/types";
 
@@ -639,7 +639,9 @@ export function MemoryPanel({
               </span>
             </div>
             <p className="controller-help">
-              Connect a USB or Bluetooth gamepad. Standard Xbox 360 layouts work automatically. Press a mapped input to test it, or select a binding to change it.
+              {mode === "j2me"
+                ? "J2ME uses a phone keypad: number keys 0-9 dial digits, arrows move, Enter is fire, Q / W are the soft keys, E is * and R is #. A gamepad covers the d-pad, fire, soft keys, * and #."
+                : "Connect a USB or Bluetooth gamepad. Standard Xbox 360 layouts work automatically. Press a mapped input to test it, or select a binding to change it."}
             </p>
             <div className={`controller-test-readout ${activeControlIds.length ? "is-active" : ""}`} role="status" aria-live="polite">
               <span className="controller-test-icon" aria-hidden="true">{activeControlIds.length ? "✓" : "TEST"}</span>
@@ -667,7 +669,7 @@ export function MemoryPanel({
                     type="button"
                   >
                     <span>keyboard</span>
-                    <b>{keyboardCaptureAction === binding.id ? "press key..." : binding.keyboardCode.replace("Arrow", "")}</b>
+                    <b>{keyboardCaptureAction === binding.id ? "press key..." : keyLabel(binding.keyboardCode)}</b>
                   </button>
                   <button
                     className="control-map-button gamepad-map-button"

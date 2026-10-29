@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type RefObject } from "react";
+import "../jsdos-scoped.css";
 import type { Game, JsDosPlayerHandle } from "../_lib/types";
 
 type UseJsDosPlayerOptions = {

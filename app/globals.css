@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
   --background: #07070f;
@@ -925,7 +925,20 @@ h1 {
   place-items: center;
 }
 
-.screen-content :is(img, svg, button, input, select, textarea, [role="button"]):not(canvas) {
+.screen-dos .screen-content {
+  position: relative;
+  display: block;
+}
+
+.screen-dos .screen-content > div {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.screen-content :is(img, svg, button, input, select, textarea, [role="button"]):not(canvas, .jsdos-rso *) {
   max-width: 28px !important;
   max-height: 28px !important;
   min-width: 0 !important;
@@ -938,15 +951,15 @@ h1 {
   box-sizing: border-box !important;
 }
 
-.screen-content img,
-.screen-content svg,
-.screen-content [class*="icon"] > img,
-.screen-content [class*="icon"] > svg {
+.screen-content img:not(.jsdos-rso *),
+.screen-content svg:not(.jsdos-rso *),
+.screen-content [class*="icon"] > img:not(.jsdos-rso *),
+.screen-content [class*="icon"] > svg:not(.jsdos-rso *) {
   width: auto !important;
   height: auto !important;
 }
 
-.screen-content button,
+.screen-content button:not(.jsdos-rso *),
 .screen-content .fe_fileexplorer_navtools button,
 .screen-content .fe_fileexplorer_folder_tools button,
 .screen-content .fe_fileexplorer_path_segment_wrap {
@@ -981,157 +994,62 @@ h1 {
   box-sizing: border-box !important;
 }
 
-/* js-dos runtime overlay fixes */
+/* js-dos runtime: keep its own layout, only theme the chrome */
 .jsdos-rso {
   position: relative;
   width: 100%;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #000;
 }
 
-.jsdos-rso .window,
-.jsdos-rso .frame-root,
-.jsdos-rso .frame,
-.jsdos-rso .settings-frame,
-.jsdos-rso .prerun-frame,
-.jsdos-rso .network-frame,
-.jsdos-rso .editor-fs-frame,
-.jsdos-rso .soft-keyboard,
-.jsdos-rso .mouseOverlay,
-.jsdos-rso .emulator-control-select,
-.jsdos-rso .emulator-button-control,
-.jsdos-rso .emulator-button-highlight,
-.jsdos-rso .emulator-loader,
-.jsdos-rso .cursor-pointer,
-.jsdos-rso .modal,
-.jsdos-rso .dialog,
-.jsdos-rso .alert {
-  max-width: 100% !important;
-  max-height: 100% !important;
-  width: auto !important;
-  height: auto !important;
-  font-size: 0.8rem !important;
-  line-height: 1 !important;
-  padding: 4px !important;
-  margin: 0 !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
+.jsdos-rso > div,
+.jsdos-rso .window {
+  width: 100%;
+  height: 100%;
 }
 
-.jsdos-rso .emulator-root,
-.jsdos-rso .emulator-canvas,
-.jsdos-rso .emulator-video {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: 100% !important;
-  max-height: 100% !important;
-  position: absolute !important;
-  inset: 0 !important;
+.jsdos-rso canvas {
+  object-fit: contain;
+  image-rendering: pixelated;
 }
 
-.jsdos-rso .emulator-root {
-  overflow: hidden !important;
+.jsdos-rso .sidebar {
+  z-index: 5;
+  background: rgba(5, 5, 10, 0.9);
+  border-right: 2px solid var(--lime);
+  box-shadow: 0 0 14px rgba(184, 255, 22, 0.2);
 }
 
-.jsdos-rso .emulator-loading,
-.jsdos-rso .emulator-loading-inner,
-.jsdos-rso .editor-fs-frame,
-.jsdos-rso .frame-root,
-.jsdos-rso .frame,
-.jsdos-rso .host {
-  position: absolute !important;
+.jsdos-rso .sidebar-button {
+  cursor: pointer;
+  color: var(--cyan);
+  font-family: var(--font-pixel), monospace;
 }
 
-.jsdos-rso .frame-root,
-.jsdos-rso .frame {
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  overflow: hidden !important;
-  background: rgba(2, 6, 18, 0.92) !important;
-  border: 1px solid rgba(33, 244, 255, 0.3) !important;
-  box-shadow: inset 0 0 0 1px rgba(184, 255, 22, 0.18), 0 0 32px rgba(33, 244, 255, 0.08) !important;
-  border-radius: 1rem !important;
+.jsdos-rso .sidebar-button:hover {
+  color: var(--lime);
+  background: rgba(184, 255, 22, 0.12);
 }
 
-.jsdos-rso .modal,
-.jsdos-rso .dialog,
+.jsdos-rso .sidebar-button svg {
+  fill: currentColor;
+}
+
+.jsdos-rso .modal-box,
 .jsdos-rso .alert,
-.jsdos-rso .soft-keyboard,
-.jsdos-rso .mouseOverlay,
-.jsdos-rso .settings-frame,
-.jsdos-rso .prerun-frame,
-.jsdos-rso .network-frame,
-.jsdos-rso .editor-fs-frame {
-  position: absolute !important;
-  inset: 0 !important;
-  background: rgba(2, 6, 18, 0.92) !important;
-  border: 1px solid rgba(184, 255, 22, 0.42) !important;
-  box-shadow: inset 0 0 0 1px rgba(33, 244, 255, 0.12), 0 0 24px rgba(33, 244, 255, 0.08) !important;
-  color: var(--foreground) !important;
-  font-family: var(--font-pixel), monospace !important;
-  border-radius: 1rem !important;
-  overflow: hidden !important;
+.jsdos-rso .dialog {
+  border: 2px solid var(--magenta);
+  background: rgba(5, 5, 10, 0.96);
+  color: var(--foreground);
+  font-family: var(--font-pixel), monospace;
 }
 
-.jsdos-rso .soft-keyboard {
-  padding: 1rem !important;
-}
-
-.jsdos-rso select,
-.jsdos-rso input,
-.jsdos-rso textarea,
 .jsdos-rso button,
-.jsdos-rso .input,
-.jsdos-rso .btn,
-.jsdos-rso .label-text,
-.jsdos-rso .option,
-.jsdos-rso .kbd,
-.jsdos-rso .emulator-control-select,
-.jsdos-rso .emulator-button-control,
-.jsdos-rso .join-item {
-  font-family: var(--font-pixel), monospace !important;
-  color: var(--foreground) !important;
-  background: rgba(8, 12, 28, 0.95) !important;
-  border: 1px solid rgba(33, 244, 255, 0.25) !important;
-  border-radius: 0.35rem !important;
-  box-shadow: inset 0 0 0 1px rgba(184, 255, 22, 0.08) !important;
-  padding: 0.45rem 0.85rem !important;
-  text-transform: uppercase !important;
-}
-
-.jsdos-rso .kbd {
-  background: rgba(184, 255, 22, 0.08) !important;
-  border-color: rgba(33, 244, 255, 0.32) !important;
-  color: var(--lime) !important;
-}
-
-.jsdos-rso .alert,
-.jsdos-rso .modal-box {
-  background: rgba(1, 1, 5, 0.96) !important;
-  border-color: rgba(255, 43, 214, 0.35) !important;
-}
-
-.jsdos-rso .mouseOverlay {
-  background: transparent !important;
-}
-
-.jsdos-rso .emulator-loader {
-  width: 48px !important;
-  height: 48px !important;
-}
-
-.jsdos-rso .emulator-canvas {
-  object-fit: contain !important;
-}
-
-.jsdos-rso .emulator-canvas {
-  object-fit: contain !important;
+.jsdos-rso select,
+.jsdos-rso input {
+  font-family: var(--font-pixel), monospace;
 }
 
 .fe_fileexplorer_folder_tools button::before,

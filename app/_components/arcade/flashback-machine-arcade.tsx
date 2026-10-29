@@ -20,7 +20,7 @@ import { useSegaPlayer } from "../../_hooks/use-sega-player";
 import { detectGameMode, formatBytes, isSupportedGameFile, titleFor } from "../../_lib/games";
 import { OFFLINE_PROMPT_DISMISSED_KEY } from "../../_lib/constants";
 import type { Game, GameMode } from "../../_lib/types";
-import { BootOverlay, type BootLine } from "./boot-overlay";
+import { BootOverlay, type BootGroup } from "./boot-overlay";
 import { Cabinet } from "./cabinet";
 import { GameLibrary } from "./game-library";
 import { LoveBadge } from "./love-badge";
@@ -159,51 +159,59 @@ export function FlashBackMachineArcade() {
       : mode === "sega"
       ? segaReady
       : pcEngineReady;
-  const bootLines: BootLine[] = [
+  const bootGroups: BootGroup[] = [
     {
       id: "ruffle",
-      parts: [
-        { text: "FLASH / RUFFLE", className: "boot-core--ruffle" },
-        { text: `: ${ruffleReady ? "READY" : /error|blocked|failed/i.test(flashPlayerStatus) ? "ERROR" : "LOADING"}` },
+      title: "RUFFLE",
+      className: "boot-core--ruffle",
+      entries: [
+        {
+          id: "flash",
+          label: "FLASH",
+          className: "boot-core--ruffle",
+          ready: ruffleReady,
+          error: /error|blocked|failed/i.test(flashPlayerStatus),
+        },
       ],
     },
     {
       id: "js-dos",
-      parts: [
-        { text: "DOS / JS-DOS", className: "boot-core--js-dos" },
-        { text: `: ${dosReady ? "READY" : /error|blocked|failed/i.test(dosPlayerStatus) ? "ERROR" : "LOADING"}` },
+      title: "JS-DOS",
+      className: "boot-core--js-dos",
+      entries: [
+        {
+          id: "dos",
+          label: "DOS",
+          className: "boot-core--js-dos",
+          ready: dosReady,
+          error: /error|blocked|failed/i.test(dosPlayerStatus),
+        },
       ],
     },
     {
       id: "retroarch",
-      parts: [
-        { text: "RETROARCH " },
-        { text: "NES", className: "boot-core--nes" },
-        { text: " / " },
-        { text: "MAME", className: "boot-core--mame" },
-        { text: " / " },
-        { text: "SEGA", className: "boot-core--sega" },
-        { text: " / " },
-        { text: "PS1", className: "boot-core--ps1" },
-        { text: " / " },
-        { text: "J2ME", className: "boot-core--j2me" },
-        { text: " / " },
-        { text: "PC ENGINE", className: "boot-core--pc-engine" },
-        { text: " / " },
-        { text: "GAME BOY", className: "boot-core--game-boy" },
-        { text: ": LOAD ON SELECT" },
+      title: "RETROARCH",
+      className: "boot-core--retroarch",
+      entries: [
+        { id: "nes", label: "NES", className: "boot-core--nes" },
+        { id: "mame", label: "MAME", className: "boot-core--mame" },
+        { id: "sega", label: "SEGA", className: "boot-core--sega" },
+        { id: "ps1", label: "PS1", className: "boot-core--ps1" },
+        { id: "pc-engine", label: "PC ENGINE", className: "boot-core--pc-engine" },
+        { id: "game-boy", label: "GAME BOY", className: "boot-core--game-boy" },
       ],
     },
     {
-      id: "playstation-2",
-      parts: [
-        { text: "PLAY! PLAYSTATION 2", className: "boot-core--ps2" },
-        { text: ": LOAD ON SELECT" },
-      ],
+      id: "cheerpj",
+      title: "FREEJ2ME / CHEERPJ",
+      className: "boot-core--j2me",
+      entries: [{ id: "j2me", label: "J2ME", className: "boot-core--j2me" }],
     },
     {
-      id: "input",
-      parts: [{ text: "KEYBOARD + USB / BLUETOOTH GAMEPAD: PER-SYSTEM MAPPINGS" }],
+      id: "play",
+      title: "PLAY!",
+      className: "boot-core--ps2",
+      entries: [{ id: "ps2", label: "PS2", className: "boot-core--ps2" }],
     },
   ];
 
@@ -392,7 +400,7 @@ export function FlashBackMachineArcade() {
         <LoveBadge />
       </main>
 
-      <BootOverlay bootLines={bootLines} bootProgress={bootProgress} bootReady={bootReady} bootStarted={bootStarted} onStart={startBoot} />
+      <BootOverlay bootGroups={bootGroups} bootProgress={bootProgress} bootReady={bootReady} bootStarted={bootStarted} onStart={startBoot} />
       <OfflinePrompt
         cacheBusy={cacheBusy}
         canInstall={canInstall}

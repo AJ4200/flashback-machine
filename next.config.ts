@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  async rewrites() {
+    return [{ source: "/freej2me/jar/:file", destination: "/games/j2me/:file" }];
+  },
   async headers() {
     return [
       {

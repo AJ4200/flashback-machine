@@ -1,4 +1,4 @@
-const VERSION = "flashback-machine-v2";
+const VERSION = "flashback-machine-v3";
 const SHELL_CACHE = `${VERSION}:shell`;
 const GAME_CACHE = `${VERSION}:games`;
 const RUNTIME_CACHE = `${VERSION}:runtime`;
@@ -30,8 +30,6 @@ const SHELL_ASSETS = [
   "/games/j2me/j2melist.json",
   "/emulators/retroarch/pcsx_rearmed_libretro.js",
   "/emulators/retroarch/pcsx_rearmed_libretro.wasm",
-  "/emulators/retroarch/squirreljme_libretro.js",
-  "/emulators/retroarch/squirreljme_libretro.wasm",
   "/emulators/retroarch/mgba_libretro.js",
   "/emulators/retroarch/mgba_libretro.wasm",
   "/emulators/retroarch/mame2000_libretro.js",

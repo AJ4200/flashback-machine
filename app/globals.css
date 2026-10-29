@@ -2670,6 +2670,105 @@ h1 {
   content: "> ";
 }
 
+.boot-lines,
+.boot-lines > span::before {
+  display: none;
+}
+
+.boot-core--retroarch {
+  color: #e8e8ff;
+}
+
+.boot-box {
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+}
+
+.boot-groups {
+  display: grid;
+  gap: 10px;
+}
+
+.boot-group h2 {
+  margin: 0 0 4px;
+  font-family: var(--font-pixel), monospace;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.boot-group h2::before {
+  color: var(--lime);
+  content: "> ";
+}
+
+.boot-group ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0 0 0 18px;
+  list-style: none;
+}
+
+.boot-entry {
+  display: grid;
+  grid-template-columns: 110px 1fr 18px;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+}
+
+.boot-entry-bar {
+  display: block;
+  height: 10px;
+  border: 2px solid currentColor;
+  padding: 1px;
+  opacity: 0.9;
+}
+
+.boot-entry-bar span {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  transition: width 160ms steps(4);
+}
+
+.boot-entry-state {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.boot-tick {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  animation: boot-tick-pop 240ms steps(3) both;
+}
+
+.boot-entry.is-error {
+  color: #ff4d4d;
+}
+
+@keyframes boot-tick-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.boot-box p.boot-note {
+  color: var(--cyan);
+  font-size: 0.6rem;
+}
+
 .boot-core--ruffle {
   color: #ff865e;
 }

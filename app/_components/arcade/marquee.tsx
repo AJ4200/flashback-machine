@@ -20,7 +20,7 @@ export function Marquee({ mode, playerStatus, ruffleReady }: MarqueeProps) {
       : mode === "ps1"
       ? "PLAYSTATION · PCSX REARMED CORE"
       : mode === "j2me"
-      ? "JAVA J2ME · SQUIRRELJME CORE"
+      ? "JAVA J2ME · FREEJ2ME RUNTIME"
       : mode === "mame"
       ? "MAME AUTO-DETECT CORE"
       : mode === "sega"

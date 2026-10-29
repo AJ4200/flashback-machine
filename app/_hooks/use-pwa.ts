@@ -9,8 +9,6 @@ const RUNTIME_URLS = [
   "/ruffle/ruffle.js",
   "/emulators/retroarch/pcsx_rearmed_libretro.js",
   "/emulators/retroarch/pcsx_rearmed_libretro.wasm",
-  "/emulators/retroarch/squirreljme_libretro.js",
-  "/emulators/retroarch/squirreljme_libretro.wasm",
   "/emulators/retroarch/mgba_libretro.js",
   "/emulators/retroarch/mgba_libretro.wasm",
   "/emulators/retroarch/genesis_plus_gx_libretro.js",

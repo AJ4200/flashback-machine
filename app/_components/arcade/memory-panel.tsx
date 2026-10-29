@@ -22,12 +22,10 @@ type MemoryPanelProps = {
   installPwa: () => void;
   isLocalGame: boolean;
   loadSlot: (slot: number) => void;
-  localRomName?: string;
   mode: GameMode;
   mountRef: RefObject<HTMLDivElement | null>;
   muted: boolean;
   notice: string;
-  onLoadLocalFile: (file: File) => void;
   onToggleMuted: () => void;
   onVolumeChange: (volume: number) => void;
   pwaStatus: string;
@@ -35,7 +33,6 @@ type MemoryPanelProps = {
   saveSlot: (slot: number) => void;
   saveSlots: SaveSlot[];
   selectedGame?: Game;
-  switchMode: (mode: GameMode) => void;
   volume: number;
 };
 
@@ -157,6 +154,148 @@ const MODE_BUTTONS = {
 } satisfies Record<GameMode, { label: string; icon: ReactNode; status: string | null }>;
 
 const MODE_ORDER: GameMode[] = ["flash", "gba", "j2me", "jsdos", "mame", "nes", "pcengine", "ps1", "ps2", "sega"];
+
+const MODE_CORE_CLASS: Record<GameMode, string> = {
+  flash: "boot-core--ruffle",
+  gba: "boot-core--game-boy",
+  j2me: "boot-core--j2me",
+  jsdos: "boot-core--js-dos",
+  mame: "boot-core--mame",
+  nes: "boot-core--nes",
+  pcengine: "boot-core--pc-engine",
+  ps1: "boot-core--ps1",
+  ps2: "boot-core--ps2",
+  sega: "boot-core--sega",
+};
+
+type EmulatorSelectorProps = {
+  isLocalGame: boolean;
+  localRomName?: string;
+  mode: GameMode;
+  onLoadLocalFile: (file: File) => void;
+  switchMode: (mode: GameMode) => void;
+};
+
+export function EmulatorSelector({ isLocalGame, localRomName, mode, onLoadLocalFile, switchMode }: EmulatorSelectorProps) {
+  const [selectorOpen, setSelectorOpen] = useState(false);
+  const currentOption = MODE_BUTTONS[mode];
+
+  return (
+    <div className="emulator-selector">
+      <div className="emulator-tools">
+        <button
+          aria-controls={selectorOpen ? "emulator-options" : undefined}
+          aria-expanded={selectorOpen}
+          aria-label={`Selected emulator: ${currentOption.label}. ${selectorOpen ? "Hide" : "Show"} emulator list`}
+          className="emulator-selector-current"
+          onClick={() => setSelectorOpen((open) => !open)}
+          type="button"
+        >
+          <span className="emulator-selector-caption">selected emulator / click to change</span>
+          <span className={`mode-button-content ${MODE_CORE_CLASS[mode]}`}>
+            <span className="mode-button-icon">{currentOption.icon}</span>
+            <strong className="mode-button-text">{currentOption.label}</strong>
+          </span>
+          <span className="emulator-selector-chevron" aria-hidden="true">{selectorOpen ? "-" : "+"}</span>
+        </button>
+        <label className={`local-rom-button ${isLocalGame ? "has-local-rom" : ""}`}>
+          <input
+            accept={MODE_ORDER.map(gameFileAccept).join(",")}
+            onChange={(event) => {
+              const file = event.currentTarget.files?.[0];
+              if (file) {
+                onLoadLocalFile(file);
+              }
+              event.currentTarget.value = "";
+            }}
+            type="file"
+          />
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3" />
+          </svg>
+          <span>{localRomName ? `local: ${localRomName}` : "load local file"}</span>
+        </label>
+      </div>
+      {selectorOpen
+        ? createPortal(
+            <div className="emulator-overlay" onClick={() => setSelectorOpen(false)} role="presentation">
+              <div aria-label="Choose emulator" aria-modal="true" className="emulator-dialog" id="emulator-options" onClick={(event) => event.stopPropagation()} role="dialog">
+                <div className="emulator-dialog-header">
+                  <strong>select emulator</strong>
+                  <button aria-label="Close emulator list" onClick={() => setSelectorOpen(false)} type="button">x</button>
+                </div>
+                <div className="emulator-grid">
+                  {MODE_ORDER.map((optionMode) => {
+                    const option = MODE_BUTTONS[optionMode];
+
+                    return (
+                      <button
+                        key={optionMode}
+                        aria-pressed={optionMode === mode}
+                        className={`emulator-option ${MODE_CORE_CLASS[optionMode]} ${optionMode === mode ? "is-current" : ""}`}
+                        onClick={() => {
+                          setSelectorOpen(false);
+                          if (optionMode !== mode) {
+                            switchMode(optionMode);
+                          }
+                        }}
+                        type="button"
+                      >
+                        <span className="mode-button-icon">{option.icon}</span>
+                        <span>{option.label}</span>
+                        {option.status ? <small className={`mode-status-pill ${option.status}`}>{option.status}</small> : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
+    </div>
+  );
+}
+
+const EMULATOR_COLORS: Array<[string, string]> = [
+  ["retroarch", "boot-core--retroarch"],
+  ["ruffle|flash", "boot-core--ruffle"],
+  ["js-?dos|dosbox|dos", "boot-core--js-dos"],
+  ["fceumm|nestopia|quicknes|nes|famicom", "boot-core--nes"],
+  ["mame\\d*(?:_plus|-plus)?(?:_libretro)?|mame|arcade", "boot-core--mame"],
+  ["genesis_plus_gx|genesis|mega drive|sega|sms|master system|game gear", "boot-core--sega"],
+  ["pcsx_rearmed|pcsx|ps1|psx|playstation", "boot-core--ps1"],
+  ["freej2me|cheerpj|j2me|java", "boot-core--j2me"],
+  ["mednafen_pce_fast|pc engine|pcengine|pce", "boot-core--pc-engine"],
+  ["mgba|game boy|gameboy|gba|gbc", "boot-core--game-boy"],
+  ["play!|ps2", "boot-core--ps2"],
+];
+
+const EMULATOR_PATTERN = new RegExp(`(?<![\\w-])(${EMULATOR_COLORS.map(([pattern]) => pattern).join("|")})(?![\\w-])`, "gi");
+
+function emulatorClass(token: string) {
+  return EMULATOR_COLORS.find(([pattern]) => new RegExp(`^(?:${pattern})$`, "i").test(token))?.[1];
+}
+
+function highlightEmulators(message: string): ReactNode[] {
+  const parts: ReactNode[] = [];
+  let last = 0;
+
+  for (const match of message.matchAll(EMULATOR_PATTERN)) {
+    const className = emulatorClass(match[0]);
+    if (!className) {
+      continue;
+    }
+    if (match.index > last) {
+      parts.push(message.slice(last, match.index));
+    }
+    parts.push(<span className={`terminal-emulator ${className}`} key={match.index}>{match[0]}</span>);
+    last = match.index + match[0].length;
+  }
+
+  parts.push(message.slice(last));
+  return parts;
+}
 
 type SectionControls = {
   canDetach: boolean;
@@ -421,12 +560,10 @@ export function MemoryPanel({
   installPwa,
   isLocalGame,
   loadSlot,
-  localRomName,
   mode,
   mountRef,
   muted,
   notice,
-  onLoadLocalFile,
   onToggleMuted,
   onVolumeChange,
   pwaStatus,
@@ -434,10 +571,8 @@ export function MemoryPanel({
   saveSlot,
   saveSlots,
   selectedGame,
-  switchMode,
   volume,
 }: MemoryPanelProps) {
-  const [selectorOpen, setSelectorOpen] = useState(false);
   const [keyboardCaptureAction, setKeyboardCaptureAction] = useState<string | null>(null);
   const [floatingWindowHost, setFloatingWindowHost] = useState<HTMLElement | null>(null);
   const terminalRef = useRef<HTMLOListElement>(null);
@@ -505,66 +640,6 @@ export function MemoryPanel({
 
   return (
     <div className="memory-column">
-      <div className="emulator-selector">
-        <div className="emulator-tools">
-          <button
-            aria-controls={selectorOpen ? "emulator-options" : undefined}
-            aria-expanded={selectorOpen}
-            aria-label={`Selected emulator: ${currentOption.label}. ${selectorOpen ? "Hide" : "Show"} emulator list`}
-            className="emulator-selector-current"
-            onClick={() => setSelectorOpen((open) => !open)}
-            type="button"
-          >
-            <span className="emulator-selector-caption">selected emulator / click to change</span>
-            <span className="mode-button-content">
-              <span className="mode-button-icon">{currentOption.icon}</span>
-              <strong className="mode-button-text">{currentOption.label}</strong>
-            </span>
-            <span className="emulator-selector-chevron" aria-hidden="true">{selectorOpen ? "-" : "+"}</span>
-          </button>
-          <label className={`local-rom-button ${isLocalGame ? "has-local-rom" : ""}`}>
-            <input
-              accept={MODE_ORDER.map(gameFileAccept).join(",")}
-              onChange={(event) => {
-                const file = event.currentTarget.files?.[0];
-                if (file) {
-                  onLoadLocalFile(file);
-                }
-                event.currentTarget.value = "";
-              }}
-              type="file"
-            />
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3" />
-            </svg>
-            <span>{localRomName ? `local: ${localRomName}` : "load local file"}</span>
-          </label>
-        </div>
-        {selectorOpen ? (
-          <div className="emulator-options" id="emulator-options">
-            {MODE_ORDER.filter((optionMode) => optionMode !== mode).map((optionMode) => {
-              const option = MODE_BUTTONS[optionMode];
-
-              return (
-                <button
-                  key={optionMode}
-                  className="emulator-option"
-                  onClick={() => {
-                    setSelectorOpen(false);
-                    switchMode(optionMode);
-                  }}
-                  type="button"
-                >
-                  <span className="mode-button-icon">{option.icon}</span>
-                  <span>{option.label}</span>
-                  {option.status ? <small className={`mode-status-pill ${option.status}`}>{option.status}</small> : null}
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
-      </div>
-
       <aside className="memory-panel" aria-label="Memory card and emulator settings">
         <div className="panel-header">
           <span>memory card</span>
@@ -590,7 +665,7 @@ export function MemoryPanel({
               {activityLines.map((line) => (
                 <li className={`terminal-line ${line.level}`} key={line.id}>
                   <time>{line.time}</time>
-                  <span>{line.message}</span>
+                  <span>{highlightEmulators(line.message)}</span>
                 </li>
               ))}
             </ol>

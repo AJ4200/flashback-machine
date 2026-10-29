@@ -1,6 +1,11 @@
 import type { Game, GameMode } from "../../_lib/types";
+import { EmulatorSelector } from "./memory-panel";
 
 type GameLibraryProps = {
+  isLocalGame: boolean;
+  localRomName?: string;
+  onLoadLocalFile: (file: File) => void;
+  switchMode: (mode: GameMode) => void;
   filteredGames: Game[];
   gameCount: number;
   mode: GameMode;
@@ -14,7 +19,7 @@ type GameLibraryProps = {
   unsupportedFiles?: string[];
 };
 
-export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGame, selectGame, setQuery, isLoading, totalFiles, supportedCount, unsupportedFiles }: GameLibraryProps) {
+export function GameLibrary({ filteredGames, gameCount, isLocalGame, localRomName, mode, onLoadLocalFile, query, selectedGame, selectGame, setQuery, switchMode, isLoading, totalFiles, supportedCount }: GameLibraryProps) {
   const libraryName = mode === "flash" ? "Flash" : mode === "gba" ? "Game Boy" : mode === "jsdos" ? "JS DOS" : mode === "sega" ? "Sega" : mode === "pcengine" ? "PC Engine" : mode === "ps2" ? "PS2" : mode === "ps1" ? "PS1" : mode === "j2me" ? "Java" : mode.toUpperCase();
   const searchPlaceholder = mode === "flash" ? "game title" : `${libraryName} title`;
 
@@ -24,6 +29,8 @@ export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGam
         <span>cabinet wall</span>
         <strong>{gameCount.toString().padStart(2, "0")}</strong>
       </div>
+
+      <EmulatorSelector isLocalGame={isLocalGame} localRomName={localRomName} mode={mode} onLoadLocalFile={onLoadLocalFile} switchMode={switchMode} />
 
       <label className="search-box">
         <span>find</span>
@@ -39,30 +46,14 @@ export function GameLibrary({ filteredGames, gameCount, mode, query, selectedGam
           </div>
         ) : filteredGames.length === 0 ? (
           <div className="game-list-empty">
-            <strong>{query ? `no ${mode.toUpperCase()} games matched` : `no ${mode.toUpperCase()} games loaded`}</strong>
+            <strong>{query ? `no ${mode.toUpperCase()} games matched` : "no games loaded locally"}</strong>
             <small>
               {query ? (
                 `clear the search or try another title`
               ) : mode === "mame" && typeof totalFiles === "number" && totalFiles > 0 && supportedCount === 0 ? (
                 "The catalog contains files, but none are supported (.zip, .7z, .chd). Check mamelist.json or file extensions."
-              ) : mode === "mame" ? (
-                "Add MAME 2003-Plus compatible .zip, .7z or .chd ROMs to public/games/mame and list them in mamelist.json"
-              ) : mode === "nes" ? (
-                "Add .nes, .fds, .unf or .unif ROMs to public/games/nes and list them in neslist.json"
-              ) : mode === "ps2" ? (
-                "Add PS2 .iso, .cso, .chd, .isz, .bin or .elf game images to public/games/ps2 and list them in ps2list.json"
-              ) : mode === "gba" ? (
-                "Add Game Boy, Game Boy Color, or Game Boy Advance .gb, .gbc, or .gba ROMs to public/games/gba and list them in gbalist.json"
-              ) : mode === "sega" ? (
-                "Add Sega .md, .gen, .smd, .bin, .sms, .gg, .cue, .iso or .chd files to public/games/sega and list them in segalist.json"
-              ) : mode === "ps1" ? (
-                "Add PS1 .cue/.bin, .iso, .chd, .pbp or .m3u images to public/games/ps1 and list them in ps1list.json"
-              ) : mode === "j2me" ? (
-                "Add Java phone games (.jar or .jad) to public/games/j2me and list them in j2melist.json"
-              ) : mode === "pcengine" ? (
-                "Add PC Engine .pce ROMs to public/games/pcengine and list them in pcenginelist.json"
               ) : (
-                `Place valid ${mode} files into public/games/${mode} and list them in the catalog`
+                `Use "load local file" above to play a file from your device, or add games to public/games/${mode} and list them in the catalog.`
               )}
             </small>
           </div>

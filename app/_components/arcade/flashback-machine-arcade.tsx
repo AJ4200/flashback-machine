@@ -348,11 +348,15 @@ export function FlashBackMachineArcade() {
           <GameLibrary
             filteredGames={filteredGames}
             gameCount={games.length}
+            isLocalGame={Boolean(selectedGame && localGame === selectedGame)}
+            localRomName={localGame?.mode === mode ? localGame.file : undefined}
             mode={mode}
+            onLoadLocalFile={loadLocalGame}
             query={query}
             selectedGame={selectedGame}
             selectGame={selectGameAndReload}
             setQuery={setQuery}
+            switchMode={switchMode}
             isLoading={loading}
             totalFiles={totalFiles}
             supportedCount={supportedCount}
@@ -379,12 +383,10 @@ export function FlashBackMachineArcade() {
             installPwa={installPwa}
             isLocalGame={Boolean(selectedGame && localGame === selectedGame)}
             loadSlot={loadSlot}
-            localRomName={localGame?.mode === mode ? localGame.file : undefined}
             mode={mode}
             mountRef={mountRef}
             muted={muted}
             notice={notice}
-            onLoadLocalFile={loadLocalGame}
             onToggleMuted={toggleMuted}
             onVolumeChange={setVolume}
             pwaStatus={pwaStatus}
@@ -392,7 +394,6 @@ export function FlashBackMachineArcade() {
             saveSlots={saveSlots}
             selectedGame={selectedGame}
             stageRef={stageRef}
-            switchMode={switchMode}
             volume={volume}
           />
         </section>

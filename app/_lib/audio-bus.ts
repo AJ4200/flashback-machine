@@ -53,6 +53,10 @@ export function installAudioBus() {
   });
 }
 
+export function getAudioBusLevel() {
+  return state.level;
+}
+
 export function setAudioBusLevel(level: number) {
   state.level = Math.min(1, Math.max(0, level));
   state.gains.forEach((gain) => {

@@ -17,7 +17,7 @@ import { usePwa } from "../../_hooks/use-pwa";
 import { useRufflePlayer } from "../../_hooks/use-ruffle-player";
 import { useSaveSlots } from "../../_hooks/use-save-slots";
 import { useSegaPlayer } from "../../_hooks/use-sega-player";
-import { detectGameMode, formatBytes, isSupportedGameFile, titleFor } from "../../_lib/games";
+import { detectGameMode, formatBytes, isSupportedGameFile, sniffSegaGame, titleFor } from "../../_lib/games";
 import { OFFLINE_PROMPT_DISMISSED_KEY } from "../../_lib/constants";
 import type { Game, GameMode } from "../../_lib/types";
 import { BootOverlay, type BootGroup } from "./boot-overlay";
@@ -284,8 +284,8 @@ export function FlashBackMachineArcade() {
     reloadGame();
   };
 
-  const loadLocalGame = (file: File) => {
-    const targetMode = detectGameMode(file.name, mode, file.size);
+  const loadLocalGame = async (file: File) => {
+    const targetMode = (await sniffSegaGame(file)) ? "sega" : detectGameMode(file.name, mode, file.size);
     if (!targetMode) {
       setNotice(`${file.name} is not a supported game file`);
       return;

@@ -63,7 +63,7 @@ export const supportedGameExtensions = (mode: GameMode) => {
     case "ps2":
       return [/\.iso$/i, /\.cso$/i, /\.chd$/i, /\.isz$/i, /\.bin$/i, /\.elf$/i];
     case "sega":
-      return [/\.md$/i, /\.gen$/i, /\.smd$/i, /\.bin$/i, /\.sms$/i, /\.gg$/i, /\.sg$/i, /\.cue$/i, /\.iso$/i, /\.chd$/i];
+      return [/\.md$/i, /\.mdx$/i, /\.gen$/i, /\.smd$/i, /\.bin$/i, /\.sms$/i, /\.gg$/i, /\.sg$/i, /\.cue$/i, /\.iso$/i, /\.chd$/i];
   }
 };
 
@@ -84,7 +84,7 @@ export const gameFileAccept = (mode: GameMode) =>
 
 export const slugFor = (value: string) =>
   value
-    .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|pce|md|gen|smd|bin|sms|gg|sg|cue|iso|chd|cso|isz|elf|gba|gbc|gb|jar|jad|img|pbp|m3u)$/i, "")
+    .replace(/\.(swf|jsdos|zip|7z|nes|fds|unf|unif|pce|md|mdx|gen|smd|bin|sms|gg|sg|cue|iso|chd|cso|isz|elf|gba|gbc|gb|jar|jad|img|pbp|m3u)$/i, "")
     .replace(/[^a-z0-9]+/gi, "-")
     .replace(/^-|-$/g, "")
     .toLowerCase();
@@ -106,7 +106,7 @@ export const titleFor = (file: string, mode: GameMode) => {
       : mode === "gba"
       ? /\.(gba|gbc|gb)$/i
       : mode === "sega"
-      ? /\.(md|gen|smd|bin|sms|gg|sg|cue|iso|chd)$/i
+      ? /\.(md|mdx|gen|smd|bin|sms|gg|sg|cue|iso|chd)$/i
       : mode === "pcengine"
       ? /\.pce$/i
       : /\.(nes|fds|unf|unif)$/i;
@@ -134,6 +134,73 @@ export const detectGameMode = (file: string, currentMode: GameMode, size?: numbe
   }
 
   return candidates.includes(currentMode) ? currentMode : candidates[0];
+};
+
+const SEGA_ARCHIVE_ENTRY = /\.(md|mdx|gen|smd|sms|gg|sg)$/i;
+const OTHER_ROM_ENTRY = /\.(nes|fds|unf|unif|pce|gba|gbc|gb|swf|jar|jad|cue|iso|chd)$/i;
+
+const asciiAt = (bytes: Uint8Array, offset: number, text: string) =>
+  bytes.length >= offset + text.length && text.split("").every((char, index) => bytes[offset + index] === char.charCodeAt(0));
+
+// Recognises Sega cartridge and disc headers: Mega Drive/Genesis, interleaved SMD dumps, Master System/Game Gear and Sega CD.
+const looksLikeSegaImage = (bytes: Uint8Array) =>
+  asciiAt(bytes, 0x100, "SEGA") ||
+  asciiAt(bytes, 0x7ff0, "TMR SEGA") ||
+  asciiAt(bytes, 0x3ff0, "TMR SEGA") ||
+  asciiAt(bytes, 0x1ff0, "TMR SEGA") ||
+  asciiAt(bytes, 0, "SEGADISCSYSTEM") ||
+  asciiAt(bytes, 0x10, "SEGADISCSYSTEM") ||
+  (bytes[8] === 0xaa && bytes[9] === 0xbb && bytes[1] === 0x03);
+
+async function zipEntryNames(file: File) {
+  const tailSize = Math.min(file.size, 0x10000 + 22);
+  const tail = new Uint8Array(await file.slice(file.size - tailSize).arrayBuffer());
+  const view = new DataView(tail.buffer);
+  for (let offset = tail.length - 22; offset >= 0; offset -= 1) {
+    if (view.getUint32(offset, true) !== 0x06054b50) {
+      continue;
+    }
+
+    const directorySize = view.getUint32(offset + 12, true);
+    const directoryOffset = view.getUint32(offset + 16, true);
+    if (directoryOffset + directorySize > file.size) {
+      return [];
+    }
+
+    const directory = new Uint8Array(await file.slice(directoryOffset, directoryOffset + directorySize).arrayBuffer());
+    const directoryView = new DataView(directory.buffer);
+    const decoder = new TextDecoder();
+    const names: string[] = [];
+    for (let cursor = 0; cursor + 46 <= directory.length && directoryView.getUint32(cursor, true) === 0x02014b50; ) {
+      const nameLength = directoryView.getUint16(cursor + 28, true);
+      const extraLength = directoryView.getUint16(cursor + 30, true);
+      const commentLength = directoryView.getUint16(cursor + 32, true);
+      names.push(decoder.decode(directory.subarray(cursor + 46, cursor + 46 + nameLength)));
+      cursor += 46 + nameLength + extraLength + commentLength;
+    }
+
+    return names;
+  }
+
+  return [];
+}
+
+// Looks inside a file for Sega content that the extension alone cannot reveal (.bin, .iso, .zip).
+export const sniffSegaGame = async (file: File): Promise<boolean> => {
+  try {
+    if (/\.zip$/i.test(file.name)) {
+      const names = await zipEntryNames(file);
+      return names.some((name) => SEGA_ARCHIVE_ENTRY.test(name)) && !names.some((name) => OTHER_ROM_ENTRY.test(name));
+    }
+
+    if (/\.(bin|iso|img|smd|md|gen|mdx|sms|gg|sg)$/i.test(file.name)) {
+      return looksLikeSegaImage(new Uint8Array(await file.slice(0, 0x8000 + 16).arrayBuffer()));
+    }
+  } catch (error) {
+    console.warn("Could not inspect game file", error);
+  }
+
+  return false;
 };
 
 export const formatBytes = (bytes: number) => {
